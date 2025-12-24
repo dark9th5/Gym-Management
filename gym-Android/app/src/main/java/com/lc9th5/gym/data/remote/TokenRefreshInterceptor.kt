@@ -12,13 +12,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Header
 import retrofit2.http.POST
+import com.lc9th5.gym.util.ServerConfig
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class TokenRefreshInterceptor(private val tokenManager: TokenManager) : Interceptor {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.0.108:8080/") // Synced with ApiClient BASE_URL
+        .baseUrl(ServerConfig.BASE_URL + "/") // Use ServerConfig for consistency
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

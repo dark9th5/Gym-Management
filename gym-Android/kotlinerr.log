@@ -1,0 +1,158 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+./gradlew : e: file:///D:/Gy
+m/gym-Android/app/src/main/j
+ava/com/lc9th5/gym/data/remo
+te/ApiClient.kt:40:40 
+Cannot infer type for this 
+parameter. Please specify 
+it explicitly.
+At line:1 char:52
++ ... ng = 
+[Text.Encoding]::UTF8; 
+./gradlew 
+compileDebugKotlin 2>&1 | 
+Out-F ...
++                           
+      ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (e: fi  
+  le:///D:/G... it explic   
+ itly.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:40:40 Not enough 
+information to infer type 
+argument for 'V'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:42:32 Cannot infer type 
+for this parameter. Please 
+specify it explicitly.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:42:32 Not enough 
+information to infer type 
+argument for 'B'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:42:35 Cannot infer type 
+for this parameter. Please 
+specify it explicitly.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:42:35 Not enough 
+information to infer type 
+argument for 'T'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:47:29 Cannot infer type 
+for this parameter. Please 
+specify it explicitly.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:47:29 Not enough 
+information to infer type 
+argument for 'B'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:47:32 Cannot infer type 
+for this parameter. Please 
+specify it explicitly.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:47:32 Not enough 
+information to infer type 
+argument for 'T'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:120:26 Cannot infer 
+type for this parameter. 
+Please specify it 
+explicitly.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:120:26 Not enough 
+information to infer type 
+argument for 'V'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:120:37 Not enough 
+information to infer type 
+argument for 'V'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:120:45 Not enough 
+information to infer type 
+argument for 'V'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/data/remote/ApiClient
+.kt:121:28 Cannot infer 
+type for this parameter. 
+Please specify it 
+explicitly.
+
+FAILURE: Build failed with 
+an exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileDebugKotlin'.
+> A failure occurred while 
+executing org.jetbrains.kotl
+in.compilerRunner.GradleComp
+ilerRunnerWithWorkers$Gradle
+KotlinCompilerWorkAction
+   > Compilation error. See 
+log for more details
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or 
+--debug option to get more 
+log output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 41s
+15 actionable tasks: 1 executed, 14 up-to-date

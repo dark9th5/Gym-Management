@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+        BẢO MẬT ĐƯỜNG TRUYỀN (Transport Layer Security)
+        - Production: Chỉ cho phép HTTPS
+        - Development: Cho phép HTTP cho local development
+    -->
+    
+    <!-- Base config: Mặc định chặn cleartext (HTTP) traffic -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust system CAs -->
+            <certificates src="system"/>
+            <!-- Trust user-installed CAs (for debugging with proxy tools) -->
+            <!-- Remove this in production builds for security -->
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Debug config: Cho phép HTTP cho local development servers -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="user"/>
+        </trust-anchors>
+    </debug-overrides>
+    
+    <!-- Local Development: Cho phép cleartext cho localhost và local IPs -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Emulator localhost -->
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- Physical device localhost -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <!-- Local network development (adjust IPs as needed) -->
+        <domain includeSubdomains="true">192.168.0.102</domain>
+        <domain includeSubdomains="true">192.168.0.108</domain>
+        <domain includeSubdomains="true">192.168.1.0</domain>
+    </domain-config>
+    
+    <!-- Production domains: HTTPS only with certificate pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <!-- Supabase (file storage) -->
+        <domain includeSubdomains="true">supabase.co</domain>
+        
+        <!-- Ngrok tunnel (HTTPS) -->
+        <domain includeSubdomains="true">ngrok-free.dev</domain>
+        <domain includeSubdomains="true">ngrok.io</domain>
+        
+        <!-- Add your production API domain here -->
+        <!-- <domain includeSubdomains="true">api.yourdomain.com</domain> -->
+        
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+        
+        <!-- 
+            Certificate Pinning (Optional, highly recommended for production)
+            Uncomment and add your server's certificate pins for MITM protection
+        -->
+        <!--
+        <pin-set expiration="2025-12-31">
+            <pin digest="SHA-256">YOUR_CERTIFICATE_PIN_HERE</pin>
+            <pin digest="SHA-256">BACKUP_CERTIFICATE_PIN_HERE</pin>
+        </pin-set>
+        -->
+    </domain-config>
+</network-security-config>

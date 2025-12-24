@@ -4,18 +4,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.lc9th5.gym.data.local.TokenManager
+import com.lc9th5.gym.data.model.CreateLessonRequest
 import com.lc9th5.gym.data.model.GuidanceCategory
 import com.lc9th5.gym.data.model.GuidanceLesson
 import com.lc9th5.gym.data.model.GuidanceLessonDetail
+import com.lc9th5.gym.data.model.UpdateLessonRequest
 import com.lc9th5.gym.data.remote.ApiClient
 import com.lc9th5.gym.data.repository.GuidanceRepository
+import com.lc9th5.gym.utils.SupabaseStorageHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class GuidanceViewModel(private val repository: GuidanceRepository) : ViewModel() {
+class GuidanceViewModel(
+    private val repository: GuidanceRepository,
+    private val supabaseStorageHelper: SupabaseStorageHelper
+) : ViewModel() {
 
     private val fallbackCategories = listOf(
         GuidanceCategory(id = 1L, displayName = "Ngực", slug = "chest"),
@@ -57,6 +63,7 @@ class GuidanceViewModel(private val repository: GuidanceRepository) : ViewModel(
                 isDetailVisible = true,
                 isDetailLoading = true,
                 detailError = null,
+                selectedLesson = lesson,
                 selectedLessonNumber = number,
                 selectedLessonTitle = lesson.title,
                 selectedLessonDetail = null
@@ -86,6 +93,7 @@ class GuidanceViewModel(private val repository: GuidanceRepository) : ViewModel(
         _uiState.update {
             it.copy(
                 isDetailVisible = false,
+                selectedLesson = null,
                 selectedLessonDetail = null,
                 selectedLessonNumber = null,
                 selectedLessonTitle = null,
@@ -96,6 +104,230 @@ class GuidanceViewModel(private val repository: GuidanceRepository) : ViewModel(
 
     fun retryLessons() {
         _uiState.value.selectedCategoryId?.let { loadLessons(it) }
+    }
+
+    fun showAddLesson() {
+        _uiState.update {
+            it.copy(
+                isAddLessonVisible = true,
+                createLessonError = null
+            )
+        }
+    }
+
+    fun hideAddLesson() {
+        _uiState.update {
+            it.copy(
+                isAddLessonVisible = false,
+                createLessonError = null
+            )
+        }
+    }
+
+    fun showEditLesson(lesson: GuidanceLesson) {
+        _uiState.update {
+            it.copy(
+                isEditLessonVisible = true,
+                editingLesson = lesson,
+                updateLessonError = null
+            )
+        }
+        // Load detail for editing
+        viewModelScope.launch {
+            val result = repository.getLessonDetail(lesson.id)
+            result.onSuccess { detail ->
+                _uiState.update {
+                    it.copy(
+                        editingLessonDetail = detail
+                    )
+                }
+            }.onFailure { throwable ->
+                // Handle error, maybe show message
+            }
+        }
+    }
+
+    fun hideEditLesson() {
+        _uiState.update {
+            it.copy(
+                isEditLessonVisible = false,
+                editingLesson = null,
+                editingLessonDetail = null,
+                updateLessonError = null
+            )
+        }
+    }
+
+    fun showConfirmDelete(lesson: GuidanceLesson) {
+        _uiState.update {
+            it.copy(
+                isConfirmDeleteVisible = true,
+                lessonToDelete = lesson
+            )
+        }
+    }
+
+    fun hideConfirmDelete() {
+        _uiState.update {
+            it.copy(
+                isConfirmDeleteVisible = false,
+                lessonToDelete = null
+            )
+        }
+    }
+
+    fun updateLesson(
+        lessonId: Long,
+        title: String,
+        content: String,
+        videoUri: android.net.Uri?,
+        imageUri: android.net.Uri?
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUpdatingLesson = true, updateLessonError = null) }
+
+            try {
+                var videoUrl: String? = null
+                var imageUrl: String? = null
+
+                // Upload video if provided
+                videoUri?.let { uri ->
+                    val fileName = "video_${System.currentTimeMillis()}.mp4"
+                    videoUrl = supabaseStorageHelper.uploadVideo(uri, fileName)
+                }
+
+                // Upload image if provided
+                imageUri?.let { uri ->
+                    val fileName = "image_${System.currentTimeMillis()}.jpg"
+                    imageUrl = supabaseStorageHelper.uploadImage(uri, fileName)
+                }
+
+                val request = UpdateLessonRequest(
+                    title = title,
+                    content = content,
+                    videoUrl = videoUrl,
+                    imageUrl = imageUrl
+                )
+
+                val result = repository.updateLesson(lessonId, request)
+                result.onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isUpdatingLesson = false,
+                            isEditLessonVisible = false,
+                            editingLesson = null
+                        )
+                    }
+                    // Reload lessons to show the updated one
+                    _uiState.value.selectedCategoryId?.let { loadLessons(it) }
+                    closeLessonDetail()
+                }.onFailure { throwable ->
+                    _uiState.update {
+                        it.copy(
+                            isUpdatingLesson = false,
+                            updateLessonError = throwable.message ?: "Không thể cập nhật bài học"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isUpdatingLesson = false,
+                        updateLessonError = e.message ?: "Lỗi không xác định"
+                    )
+                }
+            }
+        }
+    }
+
+    fun confirmDeleteLesson() {
+        val lesson = _uiState.value.lessonToDelete ?: return
+        hideConfirmDelete()
+        deleteLesson(lesson.id)
+    }
+
+    fun deleteLesson(lessonId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isDeletingLesson = true) }
+
+            val result = repository.deleteLesson(lessonId)
+            result.onSuccess {
+                _uiState.update { it.copy(isDeletingLesson = false) }
+                // Reload lessons to remove the deleted one
+                _uiState.value.selectedCategoryId?.let { loadLessons(it) }
+                closeLessonDetail()
+            }.onFailure { throwable ->
+                _uiState.update {
+                    it.copy(
+                        isDeletingLesson = false,
+                        deleteLessonError = throwable.message ?: "Không thể xóa bài học"
+                    )
+                }
+            }
+        }
+    }
+
+    fun createLesson(
+        categoryId: Long,
+        title: String,
+        content: String,
+        videoUri: android.net.Uri?,
+        imageUri: android.net.Uri?
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isCreatingLesson = true, createLessonError = null) }
+
+            try {
+                var videoUrl: String? = null
+                var imageUrl: String? = null
+
+                // Upload video if provided
+                videoUri?.let { uri ->
+                    val fileName = "video_${System.currentTimeMillis()}.mp4"
+                    videoUrl = supabaseStorageHelper.uploadVideo(uri, fileName)
+                }
+
+                // Upload image if provided
+                imageUri?.let { uri ->
+                    val fileName = "image_${System.currentTimeMillis()}.jpg"
+                    imageUrl = supabaseStorageHelper.uploadImage(uri, fileName)
+                }
+
+                val request = CreateLessonRequest(
+                    categoryId = categoryId,
+                    title = title,
+                    content = content,
+                    videoUrl = videoUrl,
+                    imageUrl = imageUrl
+                )
+
+                val result = repository.createLesson(request)
+                result.onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isCreatingLesson = false,
+                            isAddLessonVisible = false
+                        )
+                    }
+                    // Reload lessons to show the new one
+                    _uiState.value.selectedCategoryId?.let { loadLessons(it) }
+                }.onFailure { throwable ->
+                    _uiState.update {
+                        it.copy(
+                            isCreatingLesson = false,
+                            createLessonError = throwable.message ?: "Không thể tạo bài học"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isCreatingLesson = false,
+                        createLessonError = e.message ?: "Lỗi không xác định"
+                    )
+                }
+            }
+        }
     }
 
     private fun loadCategories() {
@@ -149,18 +381,34 @@ data class GuidanceUiState(
     val categoryError: String? = null,
     val lessonsError: String? = null,
     val detailError: String? = null,
+    val selectedLesson: GuidanceLesson? = null,
     val selectedLessonNumber: Int? = null,
     val selectedLessonTitle: String? = null,
     val selectedLessonDetail: GuidanceLessonDetail? = null,
-    val isDetailVisible: Boolean = false
+    val isDetailVisible: Boolean = false,
+    val isAddLessonVisible: Boolean = false,
+    val isCreatingLesson: Boolean = false,
+    val createLessonError: String? = null,
+    val isEditLessonVisible: Boolean = false,
+    val editingLesson: GuidanceLesson? = null,
+    val editingLessonDetail: GuidanceLessonDetail? = null,
+    val isUpdatingLesson: Boolean = false,
+    val updateLessonError: String? = null,
+    val isDeletingLesson: Boolean = false,
+    val deleteLessonError: String? = null,
+    val isConfirmDeleteVisible: Boolean = false,
+    val lessonToDelete: GuidanceLesson? = null
 )
 
-class GuidanceViewModelFactory(private val tokenManager: TokenManager) : ViewModelProvider.Factory {
+class GuidanceViewModelFactory(
+    private val tokenManager: TokenManager,
+    private val supabaseStorageHelper: SupabaseStorageHelper
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GuidanceViewModel::class.java)) {
             val apiClient = ApiClient.getInstance(tokenManager)
             val repository = GuidanceRepository(apiClient.guidanceApiService)
-            return GuidanceViewModel(repository) as T
+            return GuidanceViewModel(repository, supabaseStorageHelper) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

@@ -1,3 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Gym</string>
+    
+    <!-- 2FA Settings -->
+    <string name="two_fa_title">Xác thực 2 lớp (2FA)</string>
+    <string name="two_fa_enabled">2FA đã bật</string>
+    <string name="two_fa_disabled">2FA chưa bật</string>
+    <string name="two_fa_enabled_desc">Tài khoản của bạn được bảo vệ bởi xác thực 2 lớp</string>
+    <string name="two_fa_disabled_desc">Bật 2FA để bảo vệ tài khoản tốt hơn</string>
+    <string name="two_fa_enable_btn">Bật 2FA</string>
+    <string name="two_fa_disable_btn">Tắt 2FA</string>
+    <string name="two_fa_setup_title">Thiết lập 2FA</string>
+    <string name="two_fa_scan_qr">Scan mã QR bằng ứng dụng Authenticator</string>
+    <string name="two_fa_manual_entry">Hoặc nhập thủ công:</string>
+    <string name="two_fa_enter_code">Nhập mã 6 số từ Authenticator:</string>
+    <string name="two_fa_verify">Xác nhận</string>
+    <string name="two_fa_cancel">Hủy</string>
+    <string name="two_fa_success">2FA đã được bật!</string>
+    <string name="two_fa_backup_title">Lưu các mã backup dưới đây để dùng khi mất điện thoại</string>
+    <string name="two_fa_backup_warning">Mỗi mã chỉ dùng được 1 lần. Lưu trữ an toàn và không chia sẻ!</string>
+    <string name="two_fa_backup_copy_all">Sao chép tất cả</string>
+    <string name="two_fa_backup_done">Tôi đã lưu mã</string>
+    <string name="two_fa_backup_remaining">Backup codes còn lại: %d</string>
+    <string name="two_fa_info">2FA yêu cầu bạn nhập mã từ ứng dụng Authenticator (Google Authenticator, Authy, v.v.) mỗi khi đăng nhập, giúp bảo vệ tài khoản ngay cả khi mật khẩu bị lộ.</string>
+    <string name="two_fa_disable_title">Tắt 2FA?</string>
+    <string name="two_fa_disable_desc">Điều này sẽ làm giảm bảo mật tài khoản. Nhập mã từ Authenticator hoặc backup code để xác nhận.</string>
+    <string name="two_fa_code_placeholder">Mã xác thực</string>
+    
+    <!-- Profile -->
+    <string name="profile_edit_title">Chỉnh sửa hồ sơ</string>
+    <string name="profile_fullname">Họ và tên</string>
+    <string name="profile_username">Tên người dùng</string>
+    <string name="profile_save">Lưu thay đổi</string>
+    <string name="profile_update_success">Cập nhật hồ sơ thành công</string>
+    
+    <!-- Change Password -->
+    <string name="password_change_title">Đổi mật khẩu</string>
+    <string name="password_current">Mật khẩu hiện tại</string>
+    <string name="password_new">Mật khẩu mới</string>
+    <string name="password_confirm">Xác nhận mật khẩu mới</string>
+    <string name="password_change_btn">Đổi mật khẩu</string>
+    <string name="password_change_success">Đổi mật khẩu thành công</string>
+    <string name="password_2fa_required">Yêu cầu mã xác thực 2FA</string>
+    <string name="password_2fa_code">Mã 2FA từ Authenticator</string>
+    
+    <!-- Common -->
+    <string name="back">Quay lại</string>
+    <string name="save">Lưu</string>
+    <string name="cancel">Hủy</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="error">Lỗi</string>
+    <string name="success">Thành công</string>
+    <string name="loading">Đang tải…</string>
+    <string name="logout">Đăng xuất</string>
 </resources>

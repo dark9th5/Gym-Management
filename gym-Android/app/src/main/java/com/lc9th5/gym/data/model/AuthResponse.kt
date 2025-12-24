@@ -12,6 +12,8 @@ data class AuthResponse(
         val username: String,
         val email: String,
         val fullName: String?,
-        val isVerified: Boolean
+        val roles: Set<String>,
+        val isVerified: Boolean,
+        val is2faEnabled: Boolean = false
     )
 }

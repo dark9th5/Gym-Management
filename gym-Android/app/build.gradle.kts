@@ -6,21 +6,24 @@ plugins {
 
 android {
 	namespace = "com.lc9th5.gym"
-	compileSdk = 36
+	compileSdk = 35
 
 	defaultConfig {
 		applicationId = "com.lc9th5.gym"
 		minSdk = 26
-		targetSdk = 36
+		targetSdk = 35
 		versionCode = 1
 		versionName = "1.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+		buildConfigField("String", "SUPABASE_URL", "\"https://ppjmdjenkupghkogktso.supabase.co\"")
+		buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable__1BAdhepnUyPDuT8mJfKlw_wH3c-CIl\"")
 	}
 
 	buildTypes {
 		release {
-			isMinifyEnabled = false
+			isMinifyEnabled = true
 			proguardFiles(
 				getDefaultProguardFile("proguard-android-optimize.txt"),
 				"proguard-rules.pro"
@@ -38,6 +41,7 @@ android {
 	}
 	buildFeatures {
 		compose = true
+		buildConfig = true
 	}
 }
 
@@ -65,6 +69,13 @@ dependencies {
 	implementation(libs.media3.exoplayer)
 	implementation(libs.media3.ui)
 	implementation("androidx.security:security-crypto:1.1.0-alpha06")
+	// Supabase Storage
+	implementation("io.github.jan-tennert.supabase:storage-kt:2.1.0")
+	implementation(libs.ktor.client.core)
+	implementation(libs.ktor.client.okhttp)
+	implementation(libs.ktor.client.content.negotiation)
+	implementation(libs.ktor.serialization.kotlinx.json)
+	implementation(libs.ktor.client.plugins)
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)

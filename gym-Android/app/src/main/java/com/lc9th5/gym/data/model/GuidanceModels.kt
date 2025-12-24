@@ -21,3 +21,18 @@ data class GuidanceLessonDetail(
     val videoUrl: String?,
     val imageUrl: String?
 )
+
+data class CreateLessonRequest(
+    val categoryId: Long,
+    val title: String,
+    val content: String,
+    val videoUrl: String? = null,
+    val imageUrl: String? = null
+)
+
+data class UpdateLessonRequest(
+    val title: String,
+    val content: String,
+    val videoUrl: String? = null,
+    val imageUrl: String? = null
+)

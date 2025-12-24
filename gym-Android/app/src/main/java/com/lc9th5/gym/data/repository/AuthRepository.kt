@@ -4,10 +4,21 @@ import com.google.gson.Gson
 import com.lc9th5.gym.data.model.AuthResponse
 import com.lc9th5.gym.data.model.LoginRequest
 import com.lc9th5.gym.data.model.RegisterRequest
+import com.lc9th5.gym.data.model.TwoFactorRequiredResponse
 import com.lc9th5.gym.data.remote.AuthApiService
+import com.lc9th5.gym.data.remote.TwoFactorLoginRequest
 import retrofit2.Response
 
-
+/**
+ * Kết quả login có thể là:
+ * 1. AuthResponse - Đăng nhập thành công
+ * 2. TwoFactorRequiredResponse - Cần verify 2FA
+ */
+sealed class LoginResult {
+    data class Success(val response: AuthResponse) : LoginResult()
+    data class Requires2FA(val tempToken: String, val message: String) : LoginResult()
+    data class Error(val message: String) : LoginResult()
+}
 
 class AuthRepository(private val apiService: AuthApiService) {
     
@@ -42,14 +53,29 @@ class AuthRepository(private val apiService: AuthApiService) {
         }
     }
 
-    suspend fun login(request: LoginRequest): Result<AuthResponse> {
+    /**
+     * Login với hỗ trợ 2FA
+     * Trả về LoginResult thay vì Result<AuthResponse>
+     */
+    suspend fun login(request: LoginRequest): LoginResult {
         return try {
             val response = apiService.login(request)
             if (response.isSuccessful && response.body() != null) {
-                // Convert Any to AuthResponse using Gson
                 val jsonString = gson.toJson(response.body())
-                val authResponse = gson.fromJson(jsonString, AuthResponse::class.java)
-                Result.success(authResponse)
+                
+                // Kiểm tra xem response có phải là 2FA required không
+                val bodyMap = gson.fromJson(jsonString, Map::class.java)
+                
+                if (bodyMap["requires2fa"] == true) {
+                    // Cần 2FA verification
+                    val tempToken = bodyMap["tempToken"] as? String ?: ""
+                    val message = bodyMap["message"] as? String ?: "Vui lòng nhập mã xác thực"
+                    LoginResult.Requires2FA(tempToken, message)
+                } else {
+                    // Đăng nhập thành công
+                    val authResponse = gson.fromJson(jsonString, AuthResponse::class.java)
+                    LoginResult.Success(authResponse)
+                }
             } else {
                 // Parse error response to get proper error message
                 val errorMessage = try {
@@ -66,6 +92,36 @@ class AuthRepository(private val apiService: AuthApiService) {
                     }
                 } catch (e: Exception) {
                     "Đăng nhập thất bại"
+                }
+                LoginResult.Error(errorMessage)
+            }
+        } catch (e: Exception) {
+            LoginResult.Error("Lỗi kết nối: ${e.message}")
+        }
+    }
+    
+    /**
+     * Verify 2FA code và hoàn tất login
+     */
+    suspend fun verify2FALogin(tempToken: String, code: String): Result<AuthResponse> {
+        return try {
+            val response = apiService.verify2faLogin(TwoFactorLoginRequest(tempToken, code))
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMessage = try {
+                    val errorBody = response.errorBody()?.string()
+                    if (errorBody != null) {
+                        val errorMap = gson.fromJson(errorBody, Map::class.java)
+                        errorMap["error"] as? String ?: errorMap["message"] as? String ?: "Mã xác thực không đúng"
+                    } else {
+                        when (response.code()) {
+                            401 -> "Mã xác thực không đúng hoặc đã hết hạn"
+                            else -> "Xác thực thất bại"
+                        }
+                    }
+                } catch (e: Exception) {
+                    "Xác thực thất bại"
                 }
                 Result.failure(Exception(errorMessage))
             }

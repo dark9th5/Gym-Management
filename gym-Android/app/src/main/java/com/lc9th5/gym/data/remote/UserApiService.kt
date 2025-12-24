@@ -14,7 +14,7 @@ interface UserApiService {
     /**
      * Get current user profile
      */
-    @GET("api/user/me")
+    @GET("user/me")
     suspend fun getCurrentUser(
         @Header("Authorization") authHeader: String
     ): Response<User>
@@ -22,25 +22,18 @@ interface UserApiService {
     /**
      * Get user by ID
      */
-    @GET("api/user/{id}")
+    @GET("user/{id}")
     suspend fun getUserById(
         @Path("id") userId: Long,
         @Header("Authorization") authHeader: String
     ): Response<User>
     
     /**
-     * Update user profile
+     * Update user profile (uses UpdateProfileRequest from AuthApiService)
      */
-    @retrofit2.http.PUT("api/user/me")
+    @retrofit2.http.PUT("user/me")
     suspend fun updateProfile(
         @retrofit2.http.Body updateRequest: UpdateProfileRequest,
         @Header("Authorization") authHeader: String
     ): Response<User>
 }
-
-/**
- * Request body for updating user profile
- */
-data class UpdateProfileRequest(
-    val fullName: String? = null
-)

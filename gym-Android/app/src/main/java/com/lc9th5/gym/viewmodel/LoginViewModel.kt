@@ -7,6 +7,7 @@ import com.lc9th5.gym.data.local.TokenManager
 import com.lc9th5.gym.data.model.AuthResponse
 import com.lc9th5.gym.data.model.LoginRequest
 import com.lc9th5.gym.data.repository.AuthRepository
+import com.lc9th5.gym.data.repository.LoginResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,20 +18,74 @@ class LoginViewModel(private val repository: AuthRepository, private val context
     val loginState: StateFlow<LoginState> = _loginState
 
     private val tokenManager = TokenManager(context)
+    
+    // Lưu temp token cho 2FA verification
+    private var pending2FAToken: String? = null
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
-            val result = repository.login(LoginRequest(username.trim(), password))
-            if (result.isSuccess) {
-                val response = result.getOrNull()!!
-                // Save auth response to TokenManager
-                tokenManager.saveAuthResponse(response)
-                _loginState.value = LoginState.Success(response)
-            } else {
-                _loginState.value = LoginState.Error(result.exceptionOrNull()?.message ?: "Login failed")
+            
+            when (val result = repository.login(LoginRequest(username.trim(), password))) {
+                is LoginResult.Success -> {
+                    // Login thành công, lưu tokens
+                    tokenManager.saveAuthResponse(result.response)
+                    _loginState.value = LoginState.Success(result.response)
+                }
+                is LoginResult.Requires2FA -> {
+                    // Cần 2FA verification
+                    pending2FAToken = result.tempToken
+                    _loginState.value = LoginState.Requires2FA(result.tempToken, result.message)
+                }
+                is LoginResult.Error -> {
+                    _loginState.value = LoginState.Error(result.message)
+                }
             }
         }
+    }
+    
+    /**
+     * Verify 2FA code
+     */
+    fun verify2FA(code: String) {
+        val tempToken = pending2FAToken
+        if (tempToken == null) {
+            _loginState.value = LoginState.Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
+            return
+        }
+        
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            
+            val result = repository.verify2FALogin(tempToken, code)
+            if (result.isSuccess) {
+                val response = result.getOrNull()!!
+                // Lưu auth response
+                tokenManager.saveAuthResponse(response)
+                pending2FAToken = null
+                _loginState.value = LoginState.Success(response)
+            } else {
+                _loginState.value = LoginState.TwoFAError(
+                    tempToken, 
+                    result.exceptionOrNull()?.message ?: "Mã xác thực không đúng"
+                )
+            }
+        }
+    }
+    
+    /**
+     * Cancel 2FA và quay lại login
+     */
+    fun cancel2FA() {
+        pending2FAToken = null
+        _loginState.value = LoginState.Idle
+    }
+    
+    /**
+     * Reset state về Idle
+     */
+    fun resetState() {
+        _loginState.value = LoginState.Idle
     }
 }
 
@@ -39,4 +94,8 @@ sealed class LoginState {
     object Loading : LoginState()
     data class Success(val response: AuthResponse) : LoginState()
     data class Error(val message: String) : LoginState()
+    
+    // 2FA States
+    data class Requires2FA(val tempToken: String, val message: String) : LoginState()
+    data class TwoFAError(val tempToken: String, val message: String) : LoginState()
 }

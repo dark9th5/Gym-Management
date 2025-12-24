@@ -1,0 +1,376 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+./gradlew : e: file:///D:/Gy
+m/gym-Android/app/src/main/j
+ava/com/lc9th5/gym/ui/view/S
+tatisticsScreen.kt:139:5 
+Syntax error: Expecting a 
+top level declaration.
+At line:1 char:1
++ ./gradlew assembleDebug 
+2>&1 | Out-File -FilePath 
+gradle_error.txt -E ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (e: fi  
+  le:///D:/G...el declara   
+ tion.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:12 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:13 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:34 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:36 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:40 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:40 Functions 
+which invoke @Composable 
+functions must be marked 
+with the @Composable 
+annotation
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:40 Function 
+declaration must have a 
+name.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:42 Unresolved 
+reference 'detail'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:139:49 Syntax error: 
+Unexpected tokens (use ';' 
+to separate expressions on 
+the same line).
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:140:9 @Composable 
+invocations can only happen 
+from the context of a 
+@Composable function
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:141:22 Unresolved 
+reference 'detail'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:142:27 Unresolved 
+reference 'viewModel'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/StatisticsScr
+een.kt:145:1 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:5 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:8 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:9 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:30 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:32 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:32 Functions which 
+invoke @Composable 
+functions must be marked 
+with the @Composable 
+annotation
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:224:32 Function 
+declaration must have a 
+name.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:225:9 @Composable 
+invocations can only happen 
+from the context of a 
+@Composable function
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:226:13 Unresolved 
+reference 'viewModel'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:229:9 @Composable 
+invocations can only happen 
+from the context of a 
+@Composable function
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:230:33 Unresolved 
+reference 'uiState'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:231:27 Unresolved 
+reference 
+'showAddExerciseDialog'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:233:17 Unresolved 
+reference 'viewModel'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:233:103 Unresolved 
+reference 'context'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:234:17 Unresolved 
+reference 
+'showAddExerciseDialog'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:5 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:8 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:9 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:30 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:32 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:32 Functions which 
+invoke @Composable 
+functions must be marked 
+with the @Composable 
+annotation
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:240:32 Function 
+declaration must have a 
+name.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:241:9 @Composable 
+invocations can only happen 
+from the context of a 
+@Composable function
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:242:34 Unresolved 
+reference 
+'showSaveConfirmDialog'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:265:25 Unresolved 
+reference 'viewModel'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:266:25 Unresolved 
+reference 
+'showSaveConfirmDialog'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:276:40 Unresolved 
+reference 
+'showSaveConfirmDialog'.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:5 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:12 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:13 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:18 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:20 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:24 Syntax error: 
+Expecting a top level 
+declaration.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:284:24 Function 
+declaration must have a 
+name.
+e: file:///D:/Gym/gym-Androi
+d/app/src/main/java/com/lc9t
+h5/gym/ui/view/WorkoutScreen
+.kt:287:1 Syntax error: 
+Expecting a top level 
+declaration.
+
+FAILURE: Build failed with 
+an exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileDebugKotlin'.
+> A failure occurred while 
+executing org.jetbrains.kotl
+in.compilerRunner.GradleComp
+ilerRunnerWithWorkers$Gradle
+KotlinCompilerWorkAction
+   > Compilation error. See 
+log for more details
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or 
+--debug option to get more 
+log output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 25s
+29 actionable tasks: 1 executed, 28 up-to-date

@@ -51,6 +51,16 @@ class TokenManager(context: Context) {
     fun saveAuthResponse(response: AuthResponse) {
         val expiresAt = System.currentTimeMillis() + (response.expiresIn * 1000)
         
+        // Convert string roles to Role enum
+        val roles = response.user.roles.mapNotNull { roleString ->
+            try {
+                Role.valueOf(roleString.uppercase())
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }.toSet()
+        val rolesJson = gson.toJson(roles)
+        
         prefs.edit().apply {
             putString(KEY_ACCESS_TOKEN, response.accessToken)
             putString(KEY_REFRESH_TOKEN, response.refreshToken)
@@ -60,6 +70,7 @@ class TokenManager(context: Context) {
             putString(KEY_USER_USERNAME, response.user.username)
             putString(KEY_USER_EMAIL, response.user.email)
             putString(KEY_USER_FULL_NAME, response.user.fullName)
+            putString(KEY_USER_ROLES, rolesJson)
             putBoolean(KEY_USER_IS_VERIFIED, response.user.isVerified)
             apply()
         }

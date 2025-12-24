@@ -1,9 +1,11 @@
 package com.lc9th5.gym.data.repository
 
 import com.google.gson.Gson
+import com.lc9th5.gym.data.model.CreateLessonRequest
 import com.lc9th5.gym.data.model.GuidanceCategory
 import com.lc9th5.gym.data.model.GuidanceLesson
 import com.lc9th5.gym.data.model.GuidanceLessonDetail
+import com.lc9th5.gym.data.model.UpdateLessonRequest
 import com.lc9th5.gym.data.remote.GuidanceApiService
 import retrofit2.Response
 
@@ -21,6 +23,27 @@ class GuidanceRepository(private val apiService: GuidanceApiService) {
 
     suspend fun getLessonDetail(lessonId: Long): Result<GuidanceLessonDetail> = safeApiCall {
         apiService.getLessonDetail(lessonId)
+    }
+
+    suspend fun createLesson(request: CreateLessonRequest): Result<GuidanceLesson> = safeApiCall {
+        apiService.createLesson(request)
+    }
+
+    suspend fun updateLesson(lessonId: Long, request: UpdateLessonRequest): Result<GuidanceLesson> = safeApiCall {
+        apiService.updateLesson(lessonId, request)
+    }
+
+    suspend fun deleteLesson(lessonId: Long): Result<Unit> {
+        return try {
+            val response = apiService.deleteLesson(lessonId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(parseError(response)))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Lỗi kết nối: ${e.message ?: "Không xác định"}"))
+        }
     }
 
     private inline fun <reified T> safeApiCall(apiCall: () -> Response<T>): Result<T> {

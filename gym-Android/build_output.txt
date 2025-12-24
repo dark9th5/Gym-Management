@@ -1,0 +1,28 @@
+﻿Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/StatisticsScreen.kt:553:25 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/StatisticsScreen.kt:956:26 'fun Modifier.menuAnchor(): Modifier' is deprecated. Use overload that takes MenuAnchorType and enabled parameters.
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/StatisticsScreen.kt:1000:30 'fun Modifier.menuAnchor(): Modifier' is deprecated. Use overload that takes MenuAnchorType and enabled parameters.
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/WorkoutPlanScreen.kt:1070:5 'fun AlertDialog(onDismissRequest: () -> Unit, modifier: Modifier = ..., properties: DialogProperties = ..., content: @Composable() ComposableFunction0<Unit>): Unit' is deprecated. Use BasicAlertDialog instead.
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/WorkoutScreen.kt:1116:5 'fun AlertDialog(onDismissRequest: () -> Unit, modifier: Modifier = ..., properties: DialogProperties = ..., content: @Composable() ComposableFunction0<Unit>): Unit' is deprecated. Use BasicAlertDialog instead.
+w: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/view/WorkoutScreen.kt:2133:5 'fun AlertDialog(onDismissRequest: () -> Unit, modifier: Modifier = ..., properties: DialogProperties = ..., content: @Composable() ComposableFunction0<Unit>): Unit' is deprecated. Use BasicAlertDialog instead.
+
+BUILD SUCCESSFUL in 1m 8s
+15 actionable tasks: 1 executed, 14 up-to-date
