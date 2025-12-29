@@ -1,0 +1,198 @@
+package lc._th5.gym_BE.controller
+
+import lc._th5.gym_BE.auth.dto.AuthResponse
+import lc._th5.gym_BE.auth.dto.LoginRequest
+import lc._th5.gym_BE.auth.dto.RegisterRequest
+import lc._th5.gym_BE.service.UserService
+import lc._th5.gym_BE.service.TokenService
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
+
+@RestController
+@RequestMapping("/api/auth")
+class AuthController(
+    private val userService: UserService,
+    private val authenticationManager: AuthenticationManager,
+    private val tokenService: TokenService,
+    private val loginAttemptService: LoginAttemptService,
+    private val jwtDecoder: JwtDecoder
+) {
+
+    @PostMapping("/register")
+    fun register(@RequestBody @Valid body: RegisterRequest): ResponseEntity<Any> {
+        // Verify email code first
+        val verifySuccess = userService.verifyEmailCode(body.email, body.code)
+        if (!verifySuccess) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("error" to "Mã xác thực không hợp lệ hoặc đã hết hạn"))
+        }
+        val user = userService.register(
+            body.username,
+            body.email,
+            body.password,
+            body.fullName
+        )
+        // Generate tokens
+        val (token, expiresIn) = tokenService.generateAccessToken(user)
+        // Generate refresh token
+        val refreshToken = tokenService.generateRefreshToken(user)
+        val resp = AuthResponse(
+            accessToken = token,
+            refreshToken = refreshToken,
+            expiresIn = expiresIn,
+            user = AuthResponse.UserInfo(
+                id = user.id,
+                username = user.username,
+                email = user.email,
+                fullName = user.fullName,
+                roles = user.roles,
+                isVerified = user.isVerified
+            )
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp)
+    }
+    @PostMapping("/request-email-verification")
+    fun requestEmailVerification(@RequestParam email: String): ResponseEntity<Map<String, String>> {
+        return try {
+            val sent = userService.sendEmailVerification(email)
+            if (sent) {
+                ResponseEntity.ok(mapOf("message" to "Đã gửi mã xác thực tới email"))
+            } else {
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to "Không thể gửi mã xác thực"))
+            }
+        } catch (e: IllegalStateException) {
+            // Throttled resend
+            ResponseEntity.status(429).body(mapOf("error" to e.message.orEmpty()))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to e.message.orEmpty()))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to e.message.orEmpty()))
+        }
+    }
+
+    @PostMapping("/verify-email-code")
+    fun verifyEmailCode(@RequestParam email: String, @RequestParam code: String): ResponseEntity<Map<String, String>> {
+        val success = userService.verifyEmailCode(email, code)
+        return if (success) {
+            ResponseEntity.ok(mapOf("message" to "Email đã được xác thực thành công"))
+        } else {
+            ResponseEntity.badRequest().body(mapOf("error" to "Mã xác thực không hợp lệ hoặc email chưa đăng ký"))
+        }
+    }
+
+    @PostMapping("/login")
+    fun login(@RequestBody @Valid body: LoginRequest, request: HttpServletRequest): ResponseEntity<Any> {
+        val clientIP = getClientIP(request)
+        if (loginAttemptService.isBlocked(clientIP)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(mapOf("error" to "Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau."))
+        }
+
+        val identifier = body.username.trim()
+        val authToken = UsernamePasswordAuthenticationToken(identifier, body.password)
+        val authentication = try {
+            authenticationManager.authenticate(authToken)
+        } catch (e: Exception) {
+            loginAttemptService.loginFailed(clientIP)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Thông tin đăng nhập không đúng"))
+        }
+
+        // Success, reset attempts
+        loginAttemptService.loginSucceeded(clientIP)
+
+        // Principal is always the user email from UserDetailsService
+        val user = userService.findByEmail(authentication.name)
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Thông tin đăng nhập không đúng"))
+
+        if (!user.isVerified) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(mapOf("error" to "Tài khoản chưa được xác thực. Vui lòng kiểm tra email và xác thực tài khoản."))
+        }
+
+        val (token, expiresIn) = tokenService.generateAccessToken(user)
+        val refreshToken = tokenService.generateRefreshToken(user)
+
+        return ResponseEntity.ok(
+            AuthResponse(
+                accessToken = token,
+                refreshToken = refreshToken,
+                expiresIn = expiresIn,
+                user = AuthResponse.UserInfo(
+                    id = user.id,
+                    username = user.username,
+                    email = user.email,
+                    fullName = user.fullName,
+                    roles = user.roles,
+                    isVerified = user.isVerified
+                )
+            )
+        )
+    }
+    // Refresh token endpoint
+    @PostMapping("/refresh")
+    fun refresh(@RequestHeader("Authorization") authHeader: String): ResponseEntity<AuthResponse> {
+        if (!authHeader.startsWith("Bearer ")) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid authorization header")
+        }
+        val refreshToken = authHeader.substring(7)
+
+        val result = tokenService.generateAccessTokenFromRefreshToken(refreshToken)
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired refresh token")
+
+        val (newAccessToken, expiresIn, newRefreshToken) = result
+
+        // Get user from new refresh token entity
+        val storedToken = tokenService.getRefreshTokenEntity(newRefreshToken)
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token not found")
+
+        return ResponseEntity.ok(
+            AuthResponse(
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken,
+                expiresIn = expiresIn,
+                user = AuthResponse.UserInfo(
+                    id = storedToken.user.id,
+                    username = storedToken.user.username,
+                    email = storedToken.user.email,
+                    fullName = storedToken.user.fullName,
+                    roles = storedToken.user.roles,
+                    isVerified = storedToken.user.isVerified
+                )
+            )
+        )
+    }
+
+    @PostMapping("/logout")
+    fun logout(@RequestHeader("Authorization") authHeader: String): ResponseEntity<Map<String, String>> {
+        if (!authHeader.startsWith("Bearer ")) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid authorization header")
+        }
+        val token = authHeader.substring(7)
+
+        try {
+            val jwt = jwtDecoder.decode(token)
+            val jti = jwt.id
+            val expiresAt = java.time.LocalDateTime.ofInstant(jwt.expiresAt, java.time.ZoneOffset.UTC)
+            tokenService.blacklistToken(jti, expiresAt)
+        } catch (e: Exception) {
+            // Invalid token, ignore
+        }
+
+        return ResponseEntity.ok(mapOf("message" to "Đã đăng xuất thành công"))
+    }
+
+    private fun getClientIP(request: HttpServletRequest): String {
+        val xForwardedFor = request.getHeader("X-Forwarded-For")
+        return if (xForwardedFor != null && xForwardedFor.isNotEmpty()) {
+            xForwardedFor.split(",")[0].trim()
+        } else {
+            request.remoteAddr ?: "unknown"
+        }
+    }
+}
