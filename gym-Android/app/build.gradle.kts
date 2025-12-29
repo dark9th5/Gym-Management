@@ -21,13 +21,39 @@ android {
 		buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable__1BAdhepnUyPDuT8mJfKlw_wH3c-CIl\"")
 	}
 
+	// Signing configs cho release build
+	signingConfigs {
+		create("release") {
+			// Keystore file nằm trong thư mục gốc project
+			val keystoreFile = rootProject.file("gym-release.jks")
+			
+			if (keystoreFile.exists()) {
+				storeFile = keystoreFile
+				storePassword = findProperty("KEYSTORE_PASSWORD")?.toString() ?: System.getenv("KEYSTORE_PASSWORD") ?: "Lucvip2003"
+				keyAlias = findProperty("KEY_ALIAS")?.toString() ?: System.getenv("KEY_ALIAS") ?: "gym"
+				keyPassword = findProperty("KEY_PASSWORD")?.toString() ?: System.getenv("KEY_PASSWORD") ?: "Lucvip2003"
+			} else {
+				println("WARNING: Keystore not found at: ${keystoreFile.absolutePath}")
+			}
+		}
+	}
+
 	buildTypes {
 		release {
 			isMinifyEnabled = true
+			isShrinkResources = true  // Xóa resources không sử dụng
 			proguardFiles(
 				getDefaultProguardFile("proguard-android-optimize.txt"),
 				"proguard-rules.pro"
 			)
+			// Sử dụng signing config nếu có
+			signingConfigs.findByName("release")?.let {
+				signingConfig = it
+			}
+		}
+		debug {
+			isMinifyEnabled = false
+			isShrinkResources = false
 		}
 	}
 	compileOptions {

@@ -1,0 +1,92 @@
+# ===============================================
+# GYM-BE Application Configuration Template
+# ===============================================
+# Copy this file to application.properties and fill in your values
+# DO NOT commit application.properties to Git!
+# ===============================================
+
+spring.application.name=gym-BE
+
+# ===============================================
+# DATABASE CONFIGURATION
+# ===============================================
+# Set these environment variables:
+# - DB_URL (optional, has default)
+# - DB_USERNAME (optional, default: gym)
+# - DB_PASSWORD (REQUIRED)
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/gym_db?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=${DB_USERNAME:gym}
+spring.datasource.password=${DB_PASSWORD}
+
+# ===============================================
+# JPA/HIBERNATE
+# ===============================================
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.connection.useUnicode=true
+spring.jpa.properties.hibernate.connection.characterEncoding=UTF-8
+spring.jpa.properties.hibernate.connection.CharSet=UTF-8
+spring.sql.init.mode=never
+spring.jpa.defer-datasource-initialization=true
+
+# ===============================================
+# SERVER
+# ===============================================
+server.port=8080
+server.servlet.encoding.charset=UTF-8
+server.servlet.encoding.enabled=true
+server.servlet.encoding.force=true
+spring.messages.encoding=UTF-8
+
+# ===============================================
+# JACKSON
+# ===============================================
+spring.jackson.serialization.WRITE_DATES_AS_TIMESTAMPS=false
+
+# ===============================================
+# LOGGING
+# ===============================================
+logging.level.org.springframework.security=INFO
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+# ===============================================
+# MAIL CONFIGURATION
+# ===============================================
+# Set these environment variables:
+# - MAIL_HOST (optional, default: smtp.gmail.com)
+# - MAIL_PORT (optional, default: 587)
+# - MAIL_USERNAME (REQUIRED)
+# - MAIL_PASSWORD (REQUIRED)
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+# ===============================================
+# SSL/HTTPS (disabled for dev with ngrok)
+# ===============================================
+# Uncomment and configure for production:
+# server.ssl.key-store-type=PKCS12
+# server.ssl.key-store=classpath:keystore.p12
+# server.ssl.key-store-password=${SSL_PASSWORD}
+# server.ssl.key-alias=tomcat
+# server.ssl.enabled=true
+
+# ===============================================
+# GEMINI AI CHATBOT
+# ===============================================
+# Set environment variable: GEMINI_API_KEY
+gemini.api.key=${GEMINI_API_KEY:}
+gemini.api.url=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+# ===============================================
+# SECURITY KEYS (REQUIRED)
+# ===============================================
+# Set these environment variables:
+# - JWT_SECRET (REQUIRED, min 32 characters)
+# - ENCRYPTION_SECRET_KEY (REQUIRED, exactly 32 characters)

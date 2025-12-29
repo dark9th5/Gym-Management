@@ -38,3 +38,20 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Sensitive Files ###
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+!src/main/resources/application.properties.example
+*.env
+.env.*
+*.pem
+*.key
+keystore.p12
+keystore.jks
+ngrok.json
+
+### Startup Scripts (chứa secrets) ###
+start-backend.bat
+start-backend.ps1
+*.secret

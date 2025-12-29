@@ -19,31 +19,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lc9th5.gym.data.model.ChatMessage
 import com.lc9th5.gym.ui.theme.*
 import com.lc9th5.gym.viewmodel.ChatUiState
 import com.lc9th5.gym.viewmodel.ChatViewModel
-import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
+
 
 /**
  * Floating Chat Button có thể di chuyển được
@@ -71,20 +66,12 @@ fun DraggableChatButton(
     
     var offsetX by remember { mutableFloatStateOf(initialX) }
     var offsetY by remember { mutableFloatStateOf(initialY) }
-    
-    // Animation for pulse effect
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
 
-    Box(
+    // Loại bỏ infinite animation để tránh refresh liên tục khi dùng Layout Inspector
+    // và giảm overdraw bằng cách loại bỏ glow effect Box
+
+    FloatingActionButton(
+        onClick = onClick,
         modifier = modifier
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .pointerInput(Unit) {
@@ -99,39 +86,26 @@ fun DraggableChatButton(
                     offsetY = newY
                 }
             }
-    ) {
-        // Glow effect behind button
-        Box(
-            modifier = Modifier
-                .size(buttonSizeDp * scale)
-                .align(Alignment.Center)
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            PrimaryOrange.copy(alpha = 0.4f),
-                            Color.Transparent
-                        )
-                    ),
-                    shape = CircleShape
-                )
+            .size(buttonSizeDp)
+            .shadow(
+                elevation = 12.dp, // Tăng shadow để tạo hiệu ứng nổi bật thay vì glow
+                shape = CircleShape,
+                ambientColor = PrimaryOrange.copy(alpha = 0.3f),
+                spotColor = PrimaryOrange.copy(alpha = 0.5f)
+            ),
+        containerColor = PrimaryOrange,
+        contentColor = Color.White,
+        shape = CircleShape,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 0.dp, // Tắt elevation mặc định để tránh double shadow
+            pressedElevation = 4.dp
         )
-        
-        // Main floating button
-        FloatingActionButton(
-            onClick = onClick,
-            modifier = Modifier
-                .size(buttonSizeDp)
-                .shadow(8.dp, CircleShape),
-            containerColor = PrimaryOrange,
-            contentColor = Color.White,
-            shape = CircleShape
-        ) {
-            Icon(
-                imageVector = Icons.Default.SmartToy,
-                contentDescription = "Chat với AI",
-                modifier = Modifier.size(28.dp)
-            )
-        }
+    ) {
+        Icon(
+            imageVector = Icons.Default.SmartToy,
+            contentDescription = "Chat với AI",
+            modifier = Modifier.size(28.dp)
+        )
     }
 }
 

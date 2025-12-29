@@ -13,3 +13,24 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Signing & Security
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+*.pem
+*.key
+
+# Environment files
+*.env
+.env.*
+
+# Build logs and temporary files
+*.log
+*.txt
+!README.txt
+
+# Sensitive outputs
+/app/release/
+/app/debug/

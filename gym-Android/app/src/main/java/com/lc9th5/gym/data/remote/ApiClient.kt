@@ -66,9 +66,15 @@ class ApiClient(private val tokenManager: TokenManager) {
             // → App sẽ không kết nối được sau khi renew
             "*.ngrok-free.dev" to listOf<String>(), // Để trống = không pin
             
-            // ========== SUPABASE (Tùy chọn) ==========
-            // Supabase dùng Cloudflare SSL, có thể pin nếu cần
-            "*.supabase.co" to listOf<String>() // Để trống = không pin
+            // ========== SUPABASE (Cloudflare) ==========
+            // Supabase sử dụng Cloudflare SSL
+            // Các pin dưới đây là Cloudflare Root CA pins (ổn định hơn leaf cert)
+            "*.supabase.co" to listOf(
+                // Cloudflare Inc ECC CA-3
+                "Wf2blGUPOnPwtGC3SiS7Tqjx1+k3QGIhzrG3v88t7go=",
+                // DigiCert Global Root CA (backup)
+                "r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="
+            )
         )
     }
 
