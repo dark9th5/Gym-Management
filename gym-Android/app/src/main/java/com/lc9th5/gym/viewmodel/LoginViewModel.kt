@@ -1,8 +1,11 @@
 package com.lc9th5.gym.viewmodel
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.lc9th5.gym.data.local.TokenManager
 import com.lc9th5.gym.data.model.AuthResponse
 import com.lc9th5.gym.data.model.LoginRequest
@@ -19,8 +22,22 @@ class LoginViewModel(private val repository: AuthRepository, private val context
 
     private val tokenManager = TokenManager(context)
     
-    // Lưu temp token cho 2FA verification
-    private var pending2FAToken: String? = null
+    // Encrypted storage cho temporary 2FA token
+    private val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+
+    private val encryptedPrefs: SharedPreferences = EncryptedSharedPreferences.create(
+        context,
+        "login_temp_prefs",
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    private companion object {
+        private const val KEY_PENDING_2FA_TOKEN = "pending_2fa_token"
+    }
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
@@ -33,8 +50,8 @@ class LoginViewModel(private val repository: AuthRepository, private val context
                     _loginState.value = LoginState.Success(result.response)
                 }
                 is LoginResult.Requires2FA -> {
-                    // Cần 2FA verification
-                    pending2FAToken = result.tempToken
+                    // Cần 2FA verification - lưu encrypted token
+                    encryptedPrefs.edit().putString(KEY_PENDING_2FA_TOKEN, result.tempToken).apply()
                     _loginState.value = LoginState.Requires2FA(result.tempToken, result.message)
                 }
                 is LoginResult.Error -> {
@@ -48,7 +65,7 @@ class LoginViewModel(private val repository: AuthRepository, private val context
      * Verify 2FA code
      */
     fun verify2FA(code: String) {
-        val tempToken = pending2FAToken
+        val tempToken = encryptedPrefs.getString(KEY_PENDING_2FA_TOKEN, null)
         if (tempToken == null) {
             _loginState.value = LoginState.Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
             return
@@ -62,7 +79,8 @@ class LoginViewModel(private val repository: AuthRepository, private val context
                 val response = result.getOrNull()!!
                 // Lưu auth response
                 tokenManager.saveAuthResponse(response)
-                pending2FAToken = null
+                // Clear encrypted temp token
+                encryptedPrefs.edit().remove(KEY_PENDING_2FA_TOKEN).apply()
                 _loginState.value = LoginState.Success(response)
             } else {
                 _loginState.value = LoginState.TwoFAError(
@@ -77,7 +95,7 @@ class LoginViewModel(private val repository: AuthRepository, private val context
      * Cancel 2FA và quay lại login
      */
     fun cancel2FA() {
-        pending2FAToken = null
+        encryptedPrefs.edit().remove(KEY_PENDING_2FA_TOKEN).apply()
         _loginState.value = LoginState.Idle
     }
     

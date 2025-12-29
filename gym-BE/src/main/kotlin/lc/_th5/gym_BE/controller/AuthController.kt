@@ -9,6 +9,7 @@ import lc._th5.gym_BE.service.TokenService
 import lc._th5.gym_BE.service.LoginAttemptService
 import lc._th5.gym_BE.service.TotpService
 import lc._th5.gym_BE.service.TwoFactorLoginRequest
+import lc._th5.gym_BE.util.EncryptedMemoryService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -30,10 +31,11 @@ class AuthController(
     private val tokenService: TokenService,
     private val loginAttemptService: LoginAttemptService,
     private val jwtDecoder: JwtDecoder,
-    private val totpService: TotpService
+    private val totpService: TotpService,
+    private val encryptedMemoryService: EncryptedMemoryService
 ) {
-    // Temporary storage cho 2FA pending logins (trong production nên dùng Redis)
-    private val pending2faLogins = ConcurrentHashMap<String, Pending2faLogin>()
+    // Temporary storage cho 2FA pending logins (encrypted in memory)
+    private val pending2faLogins = ConcurrentHashMap<String, String>() // encryptedKey -> encryptedData
     
     data class Pending2faLogin(
         val userId: Long,
@@ -138,18 +140,23 @@ class AuthController(
         if (user.is2faEnabled) {
             // User có 2FA, tạo temp token và yêu cầu verify
             val tempToken = UUID.randomUUID().toString()
-            pending2faLogins[tempToken] = Pending2faLogin(
+            val encryptedTempToken = encryptedMemoryService.encryptKey(tempToken)
+            
+            val pendingLogin = Pending2faLogin(
                 userId = user.id,
                 email = user.email,
                 expiresAt = LocalDateTime.now().plusMinutes(5) // 5 phút để nhập mã
             )
+            val encryptedData = encryptedMemoryService.encryptObject(pendingLogin)
+            
+            pending2faLogins[encryptedTempToken] = encryptedData
             
             // Cleanup expired tokens
             cleanupExpiredTokens()
             
             return ResponseEntity.ok(TwoFactorRequiredResponse(
                 requires2fa = true,
-                tempToken = tempToken,
+                tempToken = tempToken, // Trả về tempToken gốc cho client
                 message = "Vui lòng nhập mã xác thực từ ứng dụng Authenticator"
             ))
         }
@@ -182,13 +189,16 @@ class AuthController(
      */
     @PostMapping("/login/2fa")
     fun verify2faLogin(@RequestBody request: TwoFactorLoginRequest): ResponseEntity<Any> {
-        val pendingLogin = pending2faLogins[request.tempToken]
+        val encryptedTempToken = encryptedMemoryService.encryptKey(request.tempToken)
+        val encryptedData = pending2faLogins[encryptedTempToken]
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(mapOf("error" to "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."))
         
+        val pendingLogin = encryptedMemoryService.decryptObject(encryptedData, Pending2faLogin::class.java)
+        
         // Check expiry
         if (pendingLogin.expiresAt.isBefore(LocalDateTime.now())) {
-            pending2faLogins.remove(request.tempToken)
+            pending2faLogins.remove(encryptedTempToken)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(mapOf("error" to "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."))
         }
@@ -207,7 +217,7 @@ class AuthController(
         }
         
         // Remove pending login
-        pending2faLogins.remove(request.tempToken)
+        pending2faLogins.remove(encryptedTempToken)
         
         // Generate tokens
         val (token, expiresIn) = tokenService.generateAccessToken(user)
@@ -409,6 +419,14 @@ class AuthController(
     
     private fun cleanupExpiredTokens() {
         val now = LocalDateTime.now()
-        pending2faLogins.entries.removeIf { it.value.expiresAt.isBefore(now) }
+        pending2faLogins.entries.removeIf { entry ->
+            try {
+                val pendingLogin = encryptedMemoryService.decryptObject(entry.value, Pending2faLogin::class.java)
+                pendingLogin.expiresAt.isBefore(now)
+            } catch (e: Exception) {
+                // If decryption fails, remove the entry
+                true
+            }
+        }
     }
 }

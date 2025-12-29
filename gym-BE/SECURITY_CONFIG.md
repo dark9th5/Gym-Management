@@ -8,8 +8,11 @@
 |------------|------------|--------|
 | Token trên Android | **AES-256-GCM** | `TokenManager.kt` (EncryptedSharedPreferences) |
 | Mật khẩu trong DB | **BCrypt (12 rounds)** | `SecurityConfig.kt` |
-| Tin nhắn Chat | **AES-256-GCM** | `EncryptionService.kt` (MỚI) |
+| Tin nhắn Chat | **AES-256-GCM** | `EncryptionService.kt` |
 | JWT Token | **HMAC-SHA256** | `JwtConfig.kt` |
+| **Dữ liệu tạm thời (Login Attempts)** | **AES-256-GCM** | `LoginAttemptService.kt` (MỚI) |
+| **Dữ liệu tạm thời (2FA Pending)** | **AES-256-GCM** | `AuthController.kt` (MỚI) |
+| **Session Data Android (2FA Temp)** | **AES-256-GCM** | `LoginViewModel.kt` (MỚI) |
 
 ### ✅ 2. Xác thực & Phân quyền
 
@@ -92,6 +95,33 @@ encryption.secret.key=YOUR_GENERATED_KEY_HERE
 ### Bước 3: Verify cấu hình
 
 Chạy backend và kiểm tra log không có lỗi "ENCRYPTION_SECRET_KEY không được cấu hình".
+
+### Bước 4: Cấu hình Memory Encryption Key (cho dữ liệu tạm thời)
+
+Tạo key riêng cho mã hóa dữ liệu in-memory:
+
+```kotlin
+// Kotlin REPL
+import java.security.SecureRandom
+import java.util.Base64
+
+fun main() {
+    val keyBytes = ByteArray(32)
+    SecureRandom().nextBytes(keyBytes)
+    val key = Base64.getEncoder().encodeToString(keyBytes)
+    println("Generated MEMORY_ENCRYPTION_KEY: $key")
+}
+```
+
+**Cấu hình environment variable:**
+```powershell
+$env:MEMORY_ENCRYPTION_KEY="YOUR_MEMORY_KEY_HERE"
+```
+
+**Hoặc trong application.properties:**
+```properties
+memory.encryption.key=YOUR_MEMORY_KEY_HERE
+```
 
 ---
 
