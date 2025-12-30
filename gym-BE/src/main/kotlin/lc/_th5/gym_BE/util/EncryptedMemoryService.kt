@@ -10,6 +10,7 @@ import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 
 /**
  * Service mã hóa dữ liệu tạm thời trong memory
@@ -30,7 +31,9 @@ class EncryptedMemoryService {
         private const val GCM_TAG_LENGTH = 128
     }
 
-    private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+    private val objectMapper = ObjectMapper()
+        .registerModule(KotlinModule.Builder().build())
+        .registerModule(JavaTimeModule())
 
     @Value("\${memory.encryption.key:#{null}}")
     private var memoryKeyConfig: String? = null
@@ -103,16 +106,18 @@ class EncryptedMemoryService {
 
     /**
      * Mã hóa key cho HashMap (thường là email/username)
+     * NOTE: Không dùng encryption với random IV vì sẽ không thể lookup được trong Map
+     * Trả về nguyên bản hoặc hash
      */
     fun encryptKey(key: String): String {
-        return encrypt(key)
+        return key
     }
 
     /**
      * Giải mã key cho HashMap
      */
     fun decryptKey(encryptedKey: String): String {
-        return decrypt(encryptedKey)
+        return encryptedKey
     }
 
     /**

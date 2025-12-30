@@ -43,7 +43,8 @@ class WorkoutSessionService(
         val session = getSessionByIdAndUser(sessionId, userId)
         
         session.endedAt = LocalDateTime.now()
-        session.durationMinutes = java.time.Duration.between(session.startedAt, session.endedAt).toMinutes().toInt()
+        val durationMins = java.time.Duration.between(session.startedAt, session.endedAt).toMinutes().toInt()
+        session.durationMinutes = encryptionHelper.encryptInt(durationMins)
         
         val savedSession = sessionRepository.save(session)
         
@@ -63,12 +64,12 @@ class WorkoutSessionService(
         
         val exerciseOrder = session.exercises.size + 1
         
-        // Mã hóa dữ liệu bài tập
+        // Mã hóa tất cả dữ liệu bài tập
         val exercise = WorkoutExercise(
             session = session,
             lesson = lesson,
             exerciseName = encryptionHelper.encryptName(request.exerciseName),
-            exerciseOrder = exerciseOrder,
+            exerciseOrder = encryptionHelper.encryptInt(exerciseOrder),
             notes = encryptionHelper.encryptNullable(request.notes)
         )
         
@@ -86,13 +87,13 @@ class WorkoutSessionService(
         
         val setNumber = exercise.sets.size + 1
         
-        // Mã hóa notes của set
+        // Mã hóa tất cả dữ liệu của set
         val set = WorkoutSet(
             exercise = exercise,
-            setNumber = setNumber,
-            reps = request.reps,
-            weightKg = request.weightKg,
-            durationSeconds = request.durationSeconds,
+            setNumber = encryptionHelper.encryptInt(setNumber),
+            reps = encryptionHelper.encryptInt(request.reps),
+            weightKg = encryptionHelper.encryptDoubleNullable(request.weightKg),
+            durationSeconds = encryptionHelper.encryptIntNullable(request.durationSeconds),
             isWarmup = request.isWarmup,
             isCompleted = request.isCompleted,
             notes = encryptionHelper.encryptNullable(request.notes)
@@ -132,11 +133,11 @@ class WorkoutSessionService(
             throw IllegalArgumentException("Not authorized")
         }
         
-        // Mã hóa notes nếu có cập nhật
+        // Mã hóa tất cả các trường nếu có cập nhật
         val updatedSet = set.copy(
-            reps = request.reps ?: set.reps,
-            weightKg = request.weightKg ?: set.weightKg,
-            durationSeconds = request.durationSeconds ?: set.durationSeconds,
+            reps = request.reps?.let { encryptionHelper.encryptInt(it) } ?: set.reps,
+            weightKg = request.weightKg?.let { encryptionHelper.encryptDouble(it) } ?: set.weightKg,
+            durationSeconds = request.durationSeconds?.let { encryptionHelper.encryptInt(it) } ?: set.durationSeconds,
             isCompleted = request.isCompleted ?: set.isCompleted,
             notes = request.notes?.let { encryptionHelper.encryptNullable(it) } ?: set.notes
         )

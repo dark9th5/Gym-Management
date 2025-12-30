@@ -4,6 +4,7 @@ import jakarta.persistence.*
 
 /**
  * Đại diện cho một set trong bài tập
+ * Tất cả các trường thông tin được mã hóa để bảo mật
  */
 @Entity
 @Table(name = "workout_sets")
@@ -16,17 +17,17 @@ data class WorkoutSet(
     @JoinColumn(name = "exercise_id", nullable = false)
     val exercise: WorkoutExercise,
 
-    @Column(name = "set_number", nullable = false)
-    val setNumber: Int, // Số thứ tự set: 1, 2, 3...
+    @Column(name = "set_number", nullable = false, columnDefinition = "TEXT")
+    val setNumber: String, // Số thứ tự set (mã hóa)
 
-    @Column(nullable = false)
-    val reps: Int, // Số rep đã thực hiện
+    @Column(nullable = false, columnDefinition = "TEXT")
+    val reps: String, // Số rep đã thực hiện (mã hóa)
 
-    @Column(name = "weight_kg")
-    val weightKg: Double? = null, // Trọng lượng (kg)
+    @Column(name = "weight_kg", columnDefinition = "TEXT")
+    val weightKg: String? = null, // Trọng lượng kg (mã hóa)
 
-    @Column(name = "duration_seconds")
-    val durationSeconds: Int? = null, // Thời gian (cho bài tập plank, cardio...)
+    @Column(name = "duration_seconds", columnDefinition = "TEXT")
+    val durationSeconds: String? = null, // Thời gian (mã hóa)
 
     @Column(name = "is_warmup")
     val isWarmup: Boolean = false, // Có phải set khởi động không
@@ -35,5 +36,6 @@ data class WorkoutSet(
     var isCompleted: Boolean = true, // Đã hoàn thành chưa
 
     @Column(columnDefinition = "TEXT")
-    val notes: String? = null // Ghi chú: "cảm thấy mệt", "form tốt"...
+    val notes: String? = null // Ghi chú (mã hóa)
 )
+

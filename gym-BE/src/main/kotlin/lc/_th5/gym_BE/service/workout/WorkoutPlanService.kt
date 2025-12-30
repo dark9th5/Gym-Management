@@ -82,16 +82,16 @@ class WorkoutPlanService(
         
         val exerciseOrder = day.exercises.size + 1
         
-        // Mã hóa dữ liệu bài tập trong kế hoạch
+        // Mã hóa tất cả dữ liệu bài tập trong kế hoạch
         val exercise = WorkoutPlanExercise(
             planDay = day,
             lesson = lesson,
             exerciseName = encryptionHelper.encryptName(request.exerciseName),
-            exerciseOrder = exerciseOrder,
-            targetSets = request.targetSets,
-            targetReps = request.targetReps,
-            targetWeightKg = request.targetWeightKg,
-            restSeconds = request.restSeconds,
+            exerciseOrder = encryptionHelper.encryptInt(exerciseOrder),
+            targetSets = encryptionHelper.encryptInt(request.targetSets),
+            targetReps = encryptionHelper.encryptName(request.targetReps),
+            targetWeightKg = encryptionHelper.encryptDoubleNullable(request.targetWeightKg),
+            restSeconds = encryptionHelper.encryptInt(request.restSeconds),
             notes = encryptionHelper.encryptNullable(request.notes)
         )
         
@@ -181,13 +181,13 @@ class WorkoutPlanService(
             lessonRepository.findById(it).orElse(null)
         }
         
-        // Mã hóa các trường nếu có cập nhật
+        // Mã hóa tất cả các trường nếu có cập nhật
         exercise.exerciseName = request.exerciseName?.let { encryptionHelper.encryptName(it) } ?: exercise.exerciseName
         exercise.lesson = lesson ?: exercise.lesson
-        exercise.targetSets = request.targetSets ?: exercise.targetSets
-        exercise.targetReps = request.targetReps ?: exercise.targetReps
-        exercise.targetWeightKg = request.targetWeightKg ?: exercise.targetWeightKg
-        exercise.restSeconds = request.restSeconds ?: exercise.restSeconds
+        exercise.targetSets = request.targetSets?.let { encryptionHelper.encryptInt(it) } ?: exercise.targetSets
+        exercise.targetReps = request.targetReps?.let { encryptionHelper.encryptName(it) } ?: exercise.targetReps
+        exercise.targetWeightKg = request.targetWeightKg?.let { encryptionHelper.encryptDouble(it) } ?: exercise.targetWeightKg
+        exercise.restSeconds = request.restSeconds?.let { encryptionHelper.encryptInt(it) } ?: exercise.restSeconds
         exercise.notes = request.notes?.let { encryptionHelper.encryptNullable(it) } ?: exercise.notes
         
         return planExerciseRepository.save(exercise)

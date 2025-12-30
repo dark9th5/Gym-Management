@@ -1,0 +1,14 @@
+﻿{
+    "tunnels":  [
+                    {
+                        "name":  "command_line",
+                        "ID":  "54876cf799590c283fa21b0996359956",
+                        "uri":  "/api/tunnels/command_line",
+                        "public_url":  "https://tetratomic-nonexistentially-rigoberto.ngrok-free.dev",
+                        "proto":  "https",
+                        "config":  "@{addr=http://localhost:8080; inspect=True}",
+                        "metrics":  "@{conns=; http=}"
+                    }
+                ],
+    "uri":  "/api/tunnels"
+}

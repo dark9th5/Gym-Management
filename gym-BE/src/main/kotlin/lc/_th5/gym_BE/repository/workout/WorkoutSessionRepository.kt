@@ -28,27 +28,6 @@ interface WorkoutSessionRepository : JpaRepository<WorkoutSession, Long> {
     @Query("SELECT ws FROM WorkoutSession ws WHERE ws.user.id = :userId AND DATE(ws.startedAt) = CURRENT_DATE")
     fun findTodaySessionsByUserId(@Param("userId") userId: Long): List<WorkoutSession>
     
-    @Query("""
-        SELECT DATE(ws.startedAt) as date, COUNT(ws) as count 
-        FROM WorkoutSession ws 
-        WHERE ws.user.id = :userId 
-        AND ws.startedAt >= :startDate 
-        GROUP BY DATE(ws.startedAt) 
-        ORDER BY DATE(ws.startedAt)
-    """)
-    fun getWorkoutCountByDate(
-        @Param("userId") userId: Long,
-        @Param("startDate") startDate: LocalDateTime
-    ): List<Array<Any>>
-    
-    @Query("""
-        SELECT SUM(ws.durationMinutes) 
-        FROM WorkoutSession ws 
-        WHERE ws.user.id = :userId 
-        AND ws.startedAt >= :startDate
-    """)
-    fun getTotalDurationMinutes(
-        @Param("userId") userId: Long,
-        @Param("startDate") startDate: LocalDateTime
-    ): Int?
+    // Note: Các query aggregate (SUM, AVG) đã bị xóa vì dữ liệu được mã hóa
+    // Việc tính toán thống kê giờ được thực hiện trên client
 }

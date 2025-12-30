@@ -7,17 +7,18 @@ import org.springframework.stereotype.Component
  * 
  * Các trường được mã hóa:
  * - workout_plans: name, description
- * - workout_plan_exercises: exerciseName, notes
- * - workout_sessions: name, notes  
- * - workout_exercises: exerciseName, notes
- * - workout_sets: notes
+ * - workout_plan_days: name
+ * - workout_plan_exercises: exerciseName, exerciseOrder, targetSets, targetReps, targetWeightKg, restSeconds, notes
+ * - workout_sessions: name, notes, durationMinutes, caloriesBurned
+ * - workout_exercises: exerciseName, exerciseOrder, notes
+ * - workout_sets: setNumber, reps, weightKg, durationSeconds, notes
  */
 @Component
 class WorkoutEncryptionHelper(
     private val encryptionService: EncryptionService
 ) {
     
-    // ==================== ENCRYPT (Lưu vào DB) ====================
+    // ==================== ENCRYPT STRING ====================
     
     /**
      * Mã hóa tên (không null)
@@ -27,13 +28,43 @@ class WorkoutEncryptionHelper(
     }
     
     /**
-     * Mã hóa description/notes (có thể null)
+     * Mã hóa text có thể null
      */
     fun encryptNullable(text: String?): String? {
         return text?.let { encryptionService.encrypt(it) }
     }
     
-    // ==================== DECRYPT (Đọc từ DB) ====================
+    // ==================== ENCRYPT NUMBERS ====================
+    
+    /**
+     * Mã hóa số nguyên
+     */
+    fun encryptInt(value: Int): String {
+        return encryptionService.encrypt(value.toString())
+    }
+    
+    /**
+     * Mã hóa số nguyên có thể null
+     */
+    fun encryptIntNullable(value: Int?): String? {
+        return value?.let { encryptionService.encrypt(it.toString()) }
+    }
+    
+    /**
+     * Mã hóa số thực
+     */
+    fun encryptDouble(value: Double): String {
+        return encryptionService.encrypt(value.toString())
+    }
+    
+    /**
+     * Mã hóa số thực có thể null
+     */
+    fun encryptDoubleNullable(value: Double?): String? {
+        return value?.let { encryptionService.encrypt(it.toString()) }
+    }
+    
+    // ==================== DECRYPT STRING ====================
     
     /**
      * Giải mã tên (không null)
@@ -43,47 +74,60 @@ class WorkoutEncryptionHelper(
     }
     
     /**
-     * Giải mã description/notes (có thể null)
+     * Giải mã text có thể null
      */
     fun decryptNullable(encryptedText: String?): String? {
         return encryptedText?.let { encryptionService.safeDecrypt(it) }
     }
     
-    // ==================== BATCH OPERATIONS ====================
+    // ==================== DECRYPT NUMBERS ====================
     
     /**
-     * Data class để hold encrypted workout plan data
+     * Giải mã số nguyên
      */
-    data class EncryptedPlanData(
-        val name: String,
-        val description: String?
-    )
-    
-    /**
-     * Mã hóa dữ liệu plan
-     */
-    fun encryptPlanData(name: String, description: String?): EncryptedPlanData {
-        return EncryptedPlanData(
-            name = encryptName(name),
-            description = encryptNullable(description)
-        )
+    fun decryptInt(encryptedValue: String): Int {
+        return try {
+            encryptionService.safeDecrypt(encryptedValue).toInt()
+        } catch (e: Exception) {
+            // Nếu không giải mã được hoặc không parse được, trả về giá trị gốc nếu là số
+            encryptedValue.toIntOrNull() ?: 0
+        }
     }
     
     /**
-     * Data class để hold encrypted exercise data
+     * Giải mã số nguyên có thể null
      */
-    data class EncryptedExerciseData(
-        val exerciseName: String,
-        val notes: String?
-    )
+    fun decryptIntNullable(encryptedValue: String?): Int? {
+        return encryptedValue?.let {
+            try {
+                encryptionService.safeDecrypt(it).toIntOrNull()
+            } catch (e: Exception) {
+                it.toIntOrNull()
+            }
+        }
+    }
     
     /**
-     * Mã hóa dữ liệu exercise
+     * Giải mã số thực
      */
-    fun encryptExerciseData(exerciseName: String, notes: String?): EncryptedExerciseData {
-        return EncryptedExerciseData(
-            exerciseName = encryptName(exerciseName),
-            notes = encryptNullable(notes)
-        )
+    fun decryptDouble(encryptedValue: String): Double {
+        return try {
+            encryptionService.safeDecrypt(encryptedValue).toDouble()
+        } catch (e: Exception) {
+            encryptedValue.toDoubleOrNull() ?: 0.0
+        }
+    }
+    
+    /**
+     * Giải mã số thực có thể null
+     */
+    fun decryptDoubleNullable(encryptedValue: String?): Double? {
+        return encryptedValue?.let {
+            try {
+                encryptionService.safeDecrypt(it).toDoubleOrNull()
+            } catch (e: Exception) {
+                it.toDoubleOrNull()
+            }
+        }
     }
 }

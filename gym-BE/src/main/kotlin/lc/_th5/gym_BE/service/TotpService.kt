@@ -24,7 +24,8 @@ import java.util.Base64
  */
 @Service
 class TotpService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val encryptionService: lc._th5.gym_BE.util.EncryptionService
 ) {
     companion object {
         private const val ISSUER = "GymApp"  // Tên hiển thị trong Authenticator app
@@ -55,11 +56,14 @@ class TotpService(
         // Tạo secret key mới
         val secret = secretGenerator.generate()
         
+        // Mã hóa secret trước khi lưu
+        val encryptedSecret = encryptionService.encrypt(secret)
+        
         // Lưu secret tạm thời (chưa enable)
-        val updatedUser = user.copy(totpSecret = secret, is2faEnabled = false)
+        val updatedUser = user.copy(totpSecret = encryptedSecret, is2faEnabled = false)
         userRepository.save(updatedUser)
         
-        // Tạo QR code data
+        // Tạo QR code data (dùng secret gốc - chưa mã hóa)
         val qrData = QrData.Builder()
             .label(user.email)
             .secret(secret)
@@ -81,7 +85,7 @@ class TotpService(
         val manualEntryKey = formatSecretForManualEntry(secret)
         
         return TwoFactorSetupResponse(
-            secret = secret,
+            secret = secret, // Trả về secret gốc cho client setup
             qrCodeBase64 = qrCodeImage,
             manualEntryKey = manualEntryKey,
             issuer = ISSUER,
@@ -98,8 +102,11 @@ class TotpService(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
         
-        val secret = user.totpSecret
+        val encryptedSecret = user.totpSecret
             ?: throw IllegalStateException("Chưa khởi tạo 2FA. Vui lòng gọi /2fa/setup trước.")
+            
+        // Giải mã secret để verify
+        val secret = encryptionService.safeDecrypt(encryptedSecret)
         
         if (user.is2faEnabled) {
             throw IllegalStateException("2FA đã được bật rồi.")
@@ -136,7 +143,8 @@ class TotpService(
      * Xác thực mã TOTP khi đăng nhập
      */
     fun verifyCode(user: User, code: String): Boolean {
-        val secret = user.totpSecret ?: return false
+        val encryptedSecret = user.totpSecret ?: return false
+        val secret = encryptionService.safeDecrypt(encryptedSecret)
         return codeVerifier.isValidCode(secret, code)
     }
     

@@ -113,6 +113,7 @@ fun WorkoutPlanScreen(
                     PlanCard(
                         plan = plan,
                         isActive = plan.isActive,
+                        isLoading = uiState.isLoading,
                         onClick = { viewModel.loadPlanDetail(plan.id) },
                         onSetActive = { viewModel.setActivePlan(plan.id) },
                         onDelete = { viewModel.deletePlan(plan.id) }
@@ -143,6 +144,13 @@ fun WorkoutPlanScreen(
         )
     }
     
+    // Error Toast
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearError()
+        }
+    }
 
     showAddExerciseDialog?.let { dayId ->
         // Load templates and presets
@@ -370,6 +378,7 @@ fun TodayPlanCard(
 fun PlanCard(
     plan: WorkoutPlan,
     isActive: Boolean,
+    isLoading: Boolean,
     onClick: () -> Unit,
     onSetActive: () -> Unit,
     onDelete: () -> Unit
@@ -424,31 +433,52 @@ fun PlanCard(
                         shape = RoundedCornerShape(8.dp),
                         color = PrimaryOrange
                     ) {
-                        Text(
-                            text = "Đang dùng",
-                            modifier = Modifier
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                                .clickable(onClick = onSetActive), // Click to deactivate
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
+                        Row(
+                             modifier = Modifier
+                                .clickable(enabled = !isLoading, onClick = onSetActive)
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                             verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(12.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                            Text(
+                                text = "Đang dùng",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
                     }
                 } else {
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
                         onClick = onSetActive,
+                        enabled = !isLoading,
                         colors = ButtonDefaults.textButtonColors(contentColor = PrimaryOrange)
                     ) {
-                        Text("Sử dụng", fontWeight = FontWeight.Medium)
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                color = PrimaryOrange,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Sử dụng", fontWeight = FontWeight.Medium)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = onDelete) {
+                IconButton(onClick = onDelete, enabled = !isLoading) {
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Xóa kế hoạch",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = if(isLoading) 0.5f else 1f)
                     )
                 }
             }
@@ -827,7 +857,8 @@ fun AddPlanExerciseDialog(
                                                 Text(
                                                     text = template.name,
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    fontWeight = if (selectedTemplate?.id == template.id) FontWeight.SemiBold else FontWeight.Normal
+                                                    fontWeight = if (selectedTemplate?.id == template.id) FontWeight.SemiBold else FontWeight.Normal,
+                                                    color = if (selectedTemplate?.id == template.id) PrimaryOrange else MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
                                         }
@@ -835,6 +866,18 @@ fun AddPlanExerciseDialog(
                                 }
                             }
                         }
+                        
+                        // Feedback text to show what is selected
+                        if (selectedTemplate != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Đã chọn: ${selectedTemplate!!.name}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PrimaryOrange
+                            )
+                        }
+
                     } else {
                         OutlinedTextField(
                             value = exerciseName,

@@ -32,7 +32,8 @@ class AuthController(
     private val loginAttemptService: LoginAttemptService,
     private val jwtDecoder: JwtDecoder,
     private val totpService: TotpService,
-    private val encryptedMemoryService: EncryptedMemoryService
+    private val encryptedMemoryService: EncryptedMemoryService,
+    private val encryptionService: lc._th5.gym_BE.util.EncryptionService
 ) {
     // Temporary storage cho 2FA pending logins (encrypted in memory)
     private val pending2faLogins = ConcurrentHashMap<String, String>() // encryptedKey -> encryptedData
@@ -67,9 +68,9 @@ class AuthController(
             expiresIn = expiresIn,
             user = AuthResponse.UserInfo(
                 id = user.id,
-                username = user.username,
+                username = encryptionService.safeDecrypt(user.username),
                 email = user.email,
-                fullName = user.fullName,
+                fullName = user.fullName?.let { encryptionService.safeDecrypt(it) },
                 roles = user.roles,
                 isVerified = user.isVerified,
                 is2faEnabled = user.is2faEnabled
@@ -172,9 +173,9 @@ class AuthController(
                 expiresIn = expiresIn,
                 user = AuthResponse.UserInfo(
                     id = user.id,
-                    username = user.username,
+                    username = encryptionService.safeDecrypt(user.username),
                     email = user.email,
-                    fullName = user.fullName,
+                    fullName = user.fullName?.let { encryptionService.safeDecrypt(it) },
                     roles = user.roles,
                     isVerified = user.isVerified,
                     is2faEnabled = user.is2faEnabled
@@ -230,9 +231,9 @@ class AuthController(
                 expiresIn = expiresIn,
                 user = AuthResponse.UserInfo(
                     id = user.id,
-                    username = user.username,
+                    username = encryptionService.safeDecrypt(user.username),
                     email = user.email,
-                    fullName = user.fullName,
+                    fullName = user.fullName?.let { encryptionService.safeDecrypt(it) },
                     roles = user.roles,
                     isVerified = user.isVerified,
                     is2faEnabled = user.is2faEnabled
@@ -265,9 +266,9 @@ class AuthController(
                 expiresIn = expiresIn,
                 user = AuthResponse.UserInfo(
                     id = storedToken.user.id,
-                    username = storedToken.user.username,
+                    username = encryptionService.safeDecrypt(storedToken.user.username),
                     email = storedToken.user.email,
-                    fullName = storedToken.user.fullName,
+                    fullName = storedToken.user.fullName?.let { encryptionService.safeDecrypt(it) },
                     roles = storedToken.user.roles,
                     isVerified = storedToken.user.isVerified,
                     is2faEnabled = storedToken.user.is2faEnabled
@@ -331,9 +332,9 @@ class AuthController(
                 "message" to "Cập nhật hồ sơ thành công",
                 "user" to AuthResponse.UserInfo(
                     id = updatedUser.id,
-                    username = updatedUser.username,
+                    username = encryptionService.safeDecrypt(updatedUser.username),
                     email = updatedUser.email,
-                    fullName = updatedUser.fullName,
+                    fullName = updatedUser.fullName?.let { encryptionService.safeDecrypt(it) },
                     roles = updatedUser.roles,
                     isVerified = updatedUser.isVerified,
                     is2faEnabled = updatedUser.is2faEnabled

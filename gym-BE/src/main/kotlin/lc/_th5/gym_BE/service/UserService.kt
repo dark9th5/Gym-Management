@@ -127,12 +127,12 @@ class UserService(
         if (fullName.isNullOrBlank()) {
             throw IllegalArgumentException("Full name is required")
         }
-        // Mã hóa fullName trước khi lưu
+        // Mã hóa fullName trước khi lưu -> Bỏ mã hóa theo yêu cầu
         val user = User(
             username = username.trim(),
             email = email.trim().lowercase(),
             password = passwordEncoder.encode(rawPassword),
-            fullName = encryptionService.encrypt(fullName.trim()),
+            fullName = fullName.trim(),
             roles = mutableSetOf(Role.USER),
             isVerified = true
         )
@@ -168,9 +168,9 @@ class UserService(
             }
         }
         
-        // Mã hóa fullName khi cập nhật
+        // Mã hóa fullName khi cập nhật -> Bỏ mã hóa theo yêu cầu
         val updated = user.copy(
-            fullName = fullName?.trim()?.let { encryptionService.encrypt(it) } ?: user.fullName,
+            fullName = fullName?.trim() ?: user.fullName,
             username = newUsername?.trim() ?: user.username
         )
         return userRepository.save(updated)

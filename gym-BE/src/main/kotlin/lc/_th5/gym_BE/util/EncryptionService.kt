@@ -47,7 +47,7 @@ class EncryptionService {
 
     private val secretKey: SecretKey by lazy {
         val keyString = secretKeyConfig 
-            ?: System.getenv("ENCRYPTION_SECRET_KEY")
+            ?: System.getenv("ENCRYPTION_SECRET_KEY") 
             ?: throw IllegalStateException(
                 "ENCRYPTION_SECRET_KEY không được cấu hình! " +
                 "Vui lòng set environment variable ENCRYPTION_SECRET_KEY (32 ký tự)"
@@ -77,7 +77,7 @@ class EncryptionService {
         SecretKeySpec(keyBytes, "AES")
     }
 
-    private val secureRandom = SecureRandom()
+    private val secureRandom = SecureRandom() 
 
     /**
      * Mã hóa một chuỗi văn bản
@@ -86,11 +86,10 @@ class EncryptionService {
      * @return Chuỗi Base64 chứa [IV + Ciphertext + Auth Tag]
      */
     fun encrypt(plainText: String): String {
-        // Generate random IV for each encryption
+        // Tạo IV ngẫu nhiên 
         val iv = ByteArray(GCM_IV_LENGTH)
         secureRandom.nextBytes(iv)
-
-        val cipher = Cipher.getInstance(ALGORITHM)
+        val cipher = Cipher.getInstance(ALGORITHM) 
         val gcmSpec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec)
 

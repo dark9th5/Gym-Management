@@ -2,6 +2,7 @@ package lc._th5.gym_BE.controller.workout
 
 import lc._th5.gym_BE.model.workout.*
 import lc._th5.gym_BE.service.workout.*
+import lc._th5.gym_BE.util.WorkoutEncryptionHelper
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/workout/plans")
 class WorkoutPlanController(
-    private val planService: WorkoutPlanService
+    private val planService: WorkoutPlanService,
+    private val encryptionHelper: WorkoutEncryptionHelper
 ) {
     
     @PostMapping
@@ -21,7 +23,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val plan = planService.createPlan(userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(plan.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(plan.toDecryptedResponse())
     }
     
     @GetMapping
@@ -30,7 +32,7 @@ class WorkoutPlanController(
     ): ResponseEntity<List<WorkoutPlanResponse>> {
         val userId = jwt.getClaim<Long>("uid")
         val plans = planService.getUserPlans(userId)
-        return ResponseEntity.ok(plans.map { it.toResponse() })
+        return ResponseEntity.ok(plans.map { it.toDecryptedResponse() })
     }
     
     @GetMapping("/active")
@@ -39,7 +41,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanDetailResponse?> {
         val userId = jwt.getClaim<Long>("uid")
         val plan = planService.getActivePlan(userId)
-        return ResponseEntity.ok(plan?.toDetailResponse())
+        return ResponseEntity.ok(plan?.toDecryptedDetailResponse())
     }
     
     @GetMapping("/today")
@@ -48,7 +50,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanDayResponse?> {
         val userId = jwt.getClaim<Long>("uid")
         val day = planService.getTodayPlan(userId)
-        return ResponseEntity.ok(day?.toResponse())
+        return ResponseEntity.ok(day?.toDecryptedResponse())
     }
     
     @GetMapping("/{planId}")
@@ -58,7 +60,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanDetailResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val plan = planService.getPlanById(planId, userId)
-        return ResponseEntity.ok(plan.toDetailResponse())
+        return ResponseEntity.ok(plan.toDecryptedDetailResponse())
     }
     
     @GetMapping("/{planId}/days")
@@ -68,7 +70,7 @@ class WorkoutPlanController(
     ): ResponseEntity<List<WorkoutPlanDayResponse>> {
         val userId = jwt.getClaim<Long>("uid")
         val days = planService.getPlanDays(planId, userId)
-        return ResponseEntity.ok(days.map { it.toResponse() })
+        return ResponseEntity.ok(days.map { it.toDecryptedResponse() })
     }
     
     @PostMapping("/activate")
@@ -78,7 +80,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanResponse?> {
         val userId = jwt.getClaim<Long>("uid")
         val plan = planService.setActivePlan(request.planId, userId)
-        return ResponseEntity.ok(plan?.toResponse())
+        return ResponseEntity.ok(plan?.toDecryptedResponse())
     }
     
     @PostMapping("/{planId}/days")
@@ -89,7 +91,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanDayResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val day = planService.addDayToPlan(planId, userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(day.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(day.toDecryptedResponse())
     }
     
     @PostMapping("/days/{dayId}/exercises")
@@ -100,7 +102,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanExerciseResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val exercise = planService.addExerciseToPlanDay(dayId, userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(exercise.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(exercise.toDecryptedResponse())
     }
     
     @DeleteMapping("/{planId}")
@@ -131,7 +133,7 @@ class WorkoutPlanController(
     ): ResponseEntity<WorkoutPlanExerciseResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val exercise = planService.updatePlanExercise(exerciseId, userId, request)
-        return ResponseEntity.ok(exercise.toResponse())
+        return ResponseEntity.ok(exercise.toDecryptedResponse())
     }
     
     @DeleteMapping("/exercises/{exerciseId}")
@@ -143,6 +145,45 @@ class WorkoutPlanController(
         planService.deletePlanExercise(exerciseId, userId)
         return ResponseEntity.noContent().build()
     }
+    
+    // Helper functions với giải mã
+    private fun WorkoutPlan.toDecryptedResponse() = WorkoutPlanResponse(
+        id = id,
+        name = encryptionHelper.decryptName(name),
+        description = encryptionHelper.decryptNullable(description),
+        isActive = isActive,
+        weeksDuration = weeksDuration,
+        daysCount = days.size
+    )
+    
+    private fun WorkoutPlan.toDecryptedDetailResponse() = WorkoutPlanDetailResponse(
+        id = id,
+        name = encryptionHelper.decryptName(name),
+        description = encryptionHelper.decryptNullable(description),
+        isActive = isActive,
+        weeksDuration = weeksDuration,
+        days = days.sortedBy { it.dayOfWeek }.map { it.toDecryptedResponse() }
+    )
+    
+    private fun WorkoutPlanDay.toDecryptedResponse() = WorkoutPlanDayResponse(
+        id = id,
+        dayOfWeek = dayOfWeek,
+        name = encryptionHelper.decryptName(name),
+        isRestDay = isRestDay,
+        exercises = exercises.sortedBy { encryptionHelper.decryptInt(it.exerciseOrder) }.map { it.toDecryptedResponse() }
+    )
+    
+    private fun WorkoutPlanExercise.toDecryptedResponse() = WorkoutPlanExerciseResponse(
+        id = id,
+        exerciseName = encryptionHelper.decryptName(exerciseName),
+        lessonId = lesson?.id,
+        exerciseOrder = encryptionHelper.decryptInt(exerciseOrder),
+        targetSets = encryptionHelper.decryptInt(targetSets),
+        targetReps = encryptionHelper.decryptName(targetReps),
+        targetWeightKg = encryptionHelper.decryptDoubleNullable(targetWeightKg),
+        restSeconds = encryptionHelper.decryptInt(restSeconds),
+        notes = encryptionHelper.decryptNullable(notes)
+    )
 }
 
 // Response DTOs
@@ -184,41 +225,4 @@ data class WorkoutPlanExerciseResponse(
     val notes: String?
 )
 
-// Extension functions
-fun WorkoutPlan.toResponse() = WorkoutPlanResponse(
-    id = id,
-    name = name,
-    description = description,
-    isActive = isActive,
-    weeksDuration = weeksDuration,
-    daysCount = days.size
-)
 
-fun WorkoutPlan.toDetailResponse() = WorkoutPlanDetailResponse(
-    id = id,
-    name = name,
-    description = description,
-    isActive = isActive,
-    weeksDuration = weeksDuration,
-    days = days.sortedBy { it.dayOfWeek }.map { it.toResponse() }
-)
-
-fun WorkoutPlanDay.toResponse() = WorkoutPlanDayResponse(
-    id = id,
-    dayOfWeek = dayOfWeek,
-    name = name,
-    isRestDay = isRestDay,
-    exercises = exercises.sortedBy { it.exerciseOrder }.map { it.toResponse() }
-)
-
-fun WorkoutPlanExercise.toResponse() = WorkoutPlanExerciseResponse(
-    id = id,
-    exerciseName = exerciseName,
-    lessonId = lesson?.id,
-    exerciseOrder = exerciseOrder,
-    targetSets = targetSets,
-    targetReps = targetReps,
-    targetWeightKg = targetWeightKg,
-    restSeconds = restSeconds,
-    notes = notes
-)

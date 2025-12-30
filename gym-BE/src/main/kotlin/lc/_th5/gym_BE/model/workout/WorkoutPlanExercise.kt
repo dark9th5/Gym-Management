@@ -25,19 +25,19 @@ data class WorkoutPlanExercise(
     var exerciseName: String, // Tên bài tập
 
     @Column(name = "exercise_order")
-    var exerciseOrder: Int = 0, // Thứ tự
+    var exerciseOrder: String, // Thứ tự (mã hóa)
 
     @Column(name = "target_sets")
-    var targetSets: Int = 3, // Số set mục tiêu
+    var targetSets: String, // Số set mục tiêu (mã hóa)
 
     @Column(name = "target_reps")
-    var targetReps: String = "8-12", // Số rep mục tiêu (có thể là range)
+    var targetReps: String = "8-12", // Số rep mục tiêu (mã hóa)
 
     @Column(name = "target_weight_kg")
-    var targetWeightKg: Double? = null, // Trọng lượng mục tiêu
+    var targetWeightKg: String? = null, // Trọng lượng mục tiêu (mã hóa)
 
     @Column(name = "rest_seconds")
-    var restSeconds: Int = 60, // Thời gian nghỉ giữa set (giây)
+    var restSeconds: String, // Thời gian nghỉ giữa set (mã hóa)
 
     @Column(columnDefinition = "TEXT")
     var notes: String? = null

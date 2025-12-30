@@ -4,6 +4,7 @@ import lc._th5.gym_BE.model.workout.WorkoutSession
 import lc._th5.gym_BE.model.workout.WorkoutExercise
 import lc._th5.gym_BE.model.workout.WorkoutSet
 import lc._th5.gym_BE.service.workout.*
+import lc._th5.gym_BE.util.WorkoutEncryptionHelper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
@@ -17,7 +18,8 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping("/api/workout/sessions")
 class WorkoutSessionController(
-    private val sessionService: WorkoutSessionService
+    private val sessionService: WorkoutSessionService,
+    private val encryptionHelper: WorkoutEncryptionHelper
 ) {
     
     @PostMapping
@@ -27,7 +29,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutSessionResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val session = sessionService.createSession(userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(session.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(session.toDecryptedResponse())
     }
     
     @PostMapping("/{sessionId}/end")
@@ -37,7 +39,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutSessionResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val session = sessionService.endSession(sessionId, userId)
-        return ResponseEntity.ok(session.toResponse())
+        return ResponseEntity.ok(session.toDecryptedResponse())
     }
     
     @GetMapping
@@ -48,7 +50,7 @@ class WorkoutSessionController(
     ): ResponseEntity<Page<WorkoutSessionResponse>> {
         val userId = jwt.getClaim<Long>("uid")
         val sessions = sessionService.getUserSessions(userId, PageRequest.of(page, size))
-        return ResponseEntity.ok(sessions.map { it.toResponse() })
+        return ResponseEntity.ok(sessions.map { it.toDecryptedResponse() })
     }
     
     @GetMapping("/today")
@@ -57,7 +59,7 @@ class WorkoutSessionController(
     ): ResponseEntity<List<WorkoutSessionResponse>> {
         val userId = jwt.getClaim<Long>("uid")
         val sessions = sessionService.getTodaySessions(userId)
-        return ResponseEntity.ok(sessions.map { it.toResponse() })
+        return ResponseEntity.ok(sessions.map { it.toDecryptedResponse() })
     }
     
     @GetMapping("/range")
@@ -79,7 +81,7 @@ class WorkoutSessionController(
             LocalDate.parse(endDate).atTime(23, 59, 59)
         }
         val sessions = sessionService.getUserSessionsInRange(userId, start, end)
-        return ResponseEntity.ok(sessions.map { it.toResponse() })
+        return ResponseEntity.ok(sessions.map { it.toDecryptedResponse() })
     }
     
     @GetMapping("/{sessionId}")
@@ -89,7 +91,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutSessionDetailResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val session = sessionService.getSessionById(sessionId, userId)
-        return ResponseEntity.ok(session.toDetailResponse())
+        return ResponseEntity.ok(session.toDecryptedDetailResponse())
     }
     
     @DeleteMapping("/{sessionId}")
@@ -110,7 +112,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutExerciseResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val exercise = sessionService.addExerciseToSession(sessionId, userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(exercise.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(exercise.toDecryptedResponse())
     }
     
     @PostMapping("/exercises/{exerciseId}/sets")
@@ -121,7 +123,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutSetResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val set = sessionService.addSetToExercise(exerciseId, userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(set.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(set.toDecryptedResponse())
     }
     
     @PutMapping("/sets/{setId}")
@@ -132,7 +134,7 @@ class WorkoutSessionController(
     ): ResponseEntity<WorkoutSetResponse> {
         val userId = jwt.getClaim<Long>("uid")
         val set = sessionService.updateSet(setId, userId, request)
-        return ResponseEntity.ok(set.toResponse())
+        return ResponseEntity.ok(set.toDecryptedResponse())
     }
 
     @DeleteMapping("/sets/{setId}")
@@ -153,6 +155,49 @@ class WorkoutSessionController(
         sessionService.deleteExerciseFromSession(exerciseId, userId)
         return ResponseEntity.noContent().build()
     }
+    
+    // Helper functions với giải mã
+    private fun WorkoutSession.toDecryptedResponse() = WorkoutSessionResponse(
+        id = id,
+        name = encryptionHelper.decryptName(name),
+        notes = encryptionHelper.decryptNullable(notes),
+        startedAt = startedAt,
+        endedAt = endedAt,
+        durationMinutes = encryptionHelper.decryptIntNullable(durationMinutes),
+        caloriesBurned = encryptionHelper.decryptIntNullable(caloriesBurned),
+        exerciseCount = exercises.size
+    )
+    
+    private fun WorkoutSession.toDecryptedDetailResponse() = WorkoutSessionDetailResponse(
+        id = id,
+        name = encryptionHelper.decryptName(name),
+        notes = encryptionHelper.decryptNullable(notes),
+        startedAt = startedAt,
+        endedAt = endedAt,
+        durationMinutes = encryptionHelper.decryptIntNullable(durationMinutes),
+        caloriesBurned = encryptionHelper.decryptIntNullable(caloriesBurned),
+        exercises = exercises.sortedBy { encryptionHelper.decryptInt(it.exerciseOrder) }.map { it.toDecryptedResponse() }
+    )
+    
+    private fun WorkoutExercise.toDecryptedResponse() = WorkoutExerciseResponse(
+        id = id,
+        exerciseName = encryptionHelper.decryptName(exerciseName),
+        lessonId = lesson?.id,
+        exerciseOrder = encryptionHelper.decryptInt(exerciseOrder),
+        notes = encryptionHelper.decryptNullable(notes),
+        sets = sets.sortedBy { encryptionHelper.decryptInt(it.setNumber) }.map { it.toDecryptedResponse() }
+    )
+    
+    private fun WorkoutSet.toDecryptedResponse() = WorkoutSetResponse(
+        id = id,
+        setNumber = encryptionHelper.decryptInt(setNumber),
+        reps = encryptionHelper.decryptInt(reps),
+        weightKg = encryptionHelper.decryptDoubleNullable(weightKg),
+        durationSeconds = encryptionHelper.decryptIntNullable(durationSeconds),
+        isWarmup = isWarmup,
+        isCompleted = isCompleted,
+        notes = encryptionHelper.decryptNullable(notes)
+    )
 }
 
 // Response DTOs
@@ -198,45 +243,3 @@ data class WorkoutSetResponse(
     val notes: String?
 )
 
-// Extension functions to convert entities to responses
-fun WorkoutSession.toResponse() = WorkoutSessionResponse(
-    id = id,
-    name = name,
-    notes = notes,
-    startedAt = startedAt,
-    endedAt = endedAt,
-    durationMinutes = durationMinutes,
-    caloriesBurned = caloriesBurned,
-    exerciseCount = exercises.size
-)
-
-fun WorkoutSession.toDetailResponse() = WorkoutSessionDetailResponse(
-    id = id,
-    name = name,
-    notes = notes,
-    startedAt = startedAt,
-    endedAt = endedAt,
-    durationMinutes = durationMinutes,
-    caloriesBurned = caloriesBurned,
-    exercises = exercises.map { it.toResponse() }
-)
-
-fun WorkoutExercise.toResponse() = WorkoutExerciseResponse(
-    id = id,
-    exerciseName = exerciseName,
-    lessonId = lesson?.id,
-    exerciseOrder = exerciseOrder,
-    notes = notes,
-    sets = sets.map { it.toResponse() }
-)
-
-fun WorkoutSet.toResponse() = WorkoutSetResponse(
-    id = id,
-    setNumber = setNumber,
-    reps = reps,
-    weightKg = weightKg,
-    durationSeconds = durationSeconds,
-    isWarmup = isWarmup,
-    isCompleted = isCompleted,
-    notes = notes
-)

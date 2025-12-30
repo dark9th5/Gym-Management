@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 
 /**
  * Đại diện cho một buổi tập luyện của người dùng
+ * Tất cả các trường thông tin được mã hóa để bảo mật
  */
 @Entity
 @Table(name = "workout_sessions")
@@ -19,11 +20,11 @@ data class WorkoutSession(
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
-    @Column(nullable = false)
-    val name: String, // Tên buổi tập: "Ngày tập ngực", "Push Day"...
+    @Column(nullable = false, columnDefinition = "TEXT")
+    val name: String, // Tên buổi tập (mã hóa)
 
     @Column(columnDefinition = "TEXT")
-    val notes: String? = null, // Ghi chú của người dùng
+    val notes: String? = null, // Ghi chú (mã hóa)
 
     @Column(name = "started_at", nullable = false)
     val startedAt: LocalDateTime = LocalDateTime.now(),
@@ -31,11 +32,11 @@ data class WorkoutSession(
     @Column(name = "ended_at")
     var endedAt: LocalDateTime? = null,
 
-    @Column(name = "duration_minutes")
-    var durationMinutes: Int? = null, // Thời gian tập (phút)
+    @Column(name = "duration_minutes", columnDefinition = "TEXT")
+    var durationMinutes: String? = null, // Thời gian tập (mã hóa)
 
-    @Column(name = "calories_burned")
-    var caloriesBurned: Int? = null, // Ước tính calo đốt
+    @Column(name = "calories_burned", columnDefinition = "TEXT")
+    var caloriesBurned: String? = null, // Ước tính calo đốt (mã hóa)
 
     @OneToMany(mappedBy = "session", cascade = [CascadeType.ALL], orphanRemoval = true)
     val exercises: MutableList<WorkoutExercise> = mutableListOf(),
@@ -44,3 +45,4 @@ data class WorkoutSession(
     @CreationTimestamp
     val createdAt: LocalDateTime? = null
 )
+

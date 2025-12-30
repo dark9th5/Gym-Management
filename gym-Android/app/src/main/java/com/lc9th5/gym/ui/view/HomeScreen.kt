@@ -76,7 +76,7 @@ fun HomeScreen(
         NavItem("Hướng dẫn", Icons.Filled.MenuBook, Icons.Outlined.MenuBook),
         NavItem("Luyện tập", Icons.Filled.FitnessCenter, Icons.Outlined.FitnessCenter),
         NavItem("Kế hoạch", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth),
-        NavItem("Thống kê", Icons.Filled.BarChart, Icons.Outlined.BarChart),
+        NavItem("Lịch", Icons.Filled.BarChart, Icons.Outlined.BarChart),
         NavItem("Hồ sơ", Icons.Filled.Person, Icons.Outlined.Person)
     )
     
