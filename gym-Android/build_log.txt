@@ -1,6 +1,7 @@
-﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:generateDebugBuildConfig UP-TO-DATE
 > Task :app:checkDebugAarMetadata UP-TO-DATE
 > Task :app:generateDebugResValues UP-TO-DATE
@@ -15,103 +16,69 @@
 > Task :app:processDebugManifest UP-TO-DATE
 > Task :app:processDebugManifestForPackage UP-TO-DATE
 > Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
 
 > Task :app:compileDebugKotlin FAILED
-.\gradlew : e: file:///D:/Gy
-m/gym-Android/app/src/main/j
-ava/com/lc9th5/gym/ui/view/W
-orkoutScreen.kt:372:32 
-Argument type mismatch: 
-actual type is 
-'kotlin.Int', but 
-'kotlin.String' was 
-expected.
-At line:1 char:1
-+ .\gradlew 
-compileDebugKotlin 2>&1 | 
-Out-File -FilePath 
-build_log.txt  ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~
-    + CategoryInfo          
-    : NotSpecified: (e: fi  
-  le:///D:/G...' was expe   
- cted.:String) [], Remot    
-eException
-    + FullyQualifiedErrorId 
-    : NativeCommandError
- 
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:372:58 Too many 
-arguments for 
-'constructor(reps: String = 
-..., weight: String = ...): 
-SetRowData'.
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:377:32 Argument type 
-mismatch: actual type is 
-'kotlin.Int', but 
-'kotlin.String' was 
-expected.
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:377:61 Too many 
-arguments for 
-'constructor(reps: String = 
-..., weight: String = ...): 
-SetRowData'.
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:473:47 Unresolved 
-reference 'setNumber'.
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:592:33 Argument type 
-mismatch: actual type is 
-'kotlin.Int', but 
-'kotlin.String' was 
-expected.
-e: file:///D:/Gym/gym-Androi
-d/app/src/main/java/com/lc9t
-h5/gym/ui/view/WorkoutScreen
-.kt:594:33 Too many 
-arguments for 
-'constructor(reps: String = 
-..., weight: String = ...): 
-SetRowData'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:5:28 Unresolved reference 'Result'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:15:24 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:17:24 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:20:20 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:28:24 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:30:24 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:33:20 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:42:24 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:44:24 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:47:20 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:55:24 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:57:24 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:60:20 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:69:24 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:71:24 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/data/repository/AdminRepository.kt:74:20 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:9:28 Unresolved reference 'Result'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:38:27 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:38:69 Unresolved reference 'data'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:39:27 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:39:58 Unresolved reference 'message'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:49:27 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:49:60 Unresolved reference 'data'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:50:27 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:50:58 Unresolved reference 'message'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:66:27 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:69:54 Unresolved reference 'data'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:72:27 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:72:58 Unresolved reference 'message'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:82:27 Unresolved reference 'Success'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:83:27 Unresolved reference 'Error'.
+e: file:///D:/Gym/gym-Android/app/src/main/java/com/lc9th5/gym/ui/viewmodel/AdminViewModel.kt:83:82 Unresolved reference 'message'.
 
-FAILURE: Build failed with 
-an exception.
+FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task 
-':app:compileDebugKotlin'.
-> A failure occurred while 
-executing org.jetbrains.kotl
-in.compilerRunner.GradleComp
-ilerRunnerWithWorkers$Gradle
-KotlinCompilerWorkAction
-   > Compilation error. See 
-log for more details
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
 
 * Try:
-> Run with --stacktrace 
-option to get the stack 
-trace.
-> Run with --info or 
---debug option to get more 
-log output.
-> Run with --scan to get 
-full insights.
-> Get more help at 
-https://help.gradle.org.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
 
-BUILD FAILED in 5s
-15 actionable tasks: 1 executed, 14 up-to-date
+BUILD FAILED in 10s
+29 actionable tasks: 1 executed, 28 up-to-date

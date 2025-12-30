@@ -124,11 +124,12 @@ class TotpService(
         // Tạo backup codes
         val backupCodes = generateBackupCodes()
         val backupCodesJson = objectMapper.writeValueAsString(backupCodes)
+        val encryptedBackupCodes = encryptionService.encrypt(backupCodesJson)
         
         // Enable 2FA
         val updatedUser = user.copy(
             is2faEnabled = true,
-            backupCodes = backupCodesJson
+            backupCodes = encryptedBackupCodes
         )
         userRepository.save(updatedUser)
         
@@ -156,7 +157,8 @@ class TotpService(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
         
-        val backupCodesJson = user.backupCodes ?: return false
+        val encryptedBackupCodes = user.backupCodes ?: return false
+        val backupCodesJson = encryptionService.safeDecrypt(encryptedBackupCodes)
         
         val backupCodes = try {
             objectMapper.readValue(backupCodesJson, Array<String>::class.java).toMutableList()
@@ -169,8 +171,11 @@ class TotpService(
         if (backupCodes.contains(normalizedCode)) {
             // Remove used backup code
             backupCodes.remove(normalizedCode)
+            val newBackupCodesJson = objectMapper.writeValueAsString(backupCodes)
+            val newEncryptedBackupCodes = encryptionService.encrypt(newBackupCodesJson)
+            
             val updatedUser = user.copy(
-                backupCodes = objectMapper.writeValueAsString(backupCodes)
+                backupCodes = newEncryptedBackupCodes
             )
             userRepository.save(updatedUser)
             return true
@@ -214,7 +219,8 @@ class TotpService(
         
         val backupCodesRemaining = if (user.backupCodes != null) {
             try {
-                objectMapper.readValue(user.backupCodes, Array<String>::class.java).size
+                val backupCodesJson = encryptionService.safeDecrypt(user.backupCodes!!)
+                objectMapper.readValue(backupCodesJson, Array<String>::class.java).size
             } catch (e: Exception) {
                 0
             }
@@ -245,8 +251,11 @@ class TotpService(
         }
         
         val newBackupCodes = generateBackupCodes()
+        val newBackupCodesJson = objectMapper.writeValueAsString(newBackupCodes)
+        val encryptedBackupCodes = encryptionService.encrypt(newBackupCodesJson)
+        
         val updatedUser = user.copy(
-            backupCodes = objectMapper.writeValueAsString(newBackupCodes)
+            backupCodes = encryptedBackupCodes
         )
         userRepository.save(updatedUser)
         

@@ -31,39 +31,9 @@ class ApiClient(private val tokenManager: TokenManager) {
         fun getInstance(tokenManager: TokenManager): ApiClient {
             return instance ?: ApiClient(tokenManager).also { instance = it }
         }
-        
-        /**
-         * Certificate pins cho production
-         * 
-         * ⚠️ HƯỚNG DẪN SỬ DỤNG:
-         * 1. Chỉ bật pinning cho PRODUCTION server (không phải ngrok)
-         * 2. Luôn có ít nhất 2 pins (primary + backup) để tránh bị lock out khi renew cert
-         * 3. Cập nhật backup pin TRƯỚC khi certificate hết hạn
-         * 
-         * Để lấy pin của domain, chạy:
-         * openssl s_client -servername <domain> -connect <domain>:443 2>/dev/null | \
-         *   openssl x509 -pubkey -noout | \
-         *   openssl pkey -pubin -outform der | \
-         *   openssl dgst -sha256 -binary | \
-         *   openssl enc -base64
-         * 
-         * VÍ DỤ CHO PRODUCTION:
-         * "api.gymapp.vn" to listOf(
-         *     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", // Primary cert
-         *     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="  // Backup cert
-         * )
-         */
+    
         private val CERTIFICATE_PINS: Map<String, List<String>> = mapOf(
-            // ========== PRODUCTION PINS ==========
-            // Uncomment và thêm domain production của bạn ở đây:
-            // "api.gymapp.vn" to listOf(
-            //     "YOUR_PRIMARY_PIN_HERE=",
-            //     "YOUR_BACKUP_PIN_HERE="
-            // ),
             
-            // ========== KHÔNG NÊN PIN CHO NGROK ==========
-            // Ngrok certificate tự động renew mỗi 90 ngày
-            // → App sẽ không kết nối được sau khi renew
             "*.ngrok-free.dev" to listOf<String>(), // Để trống = không pin
             
             // ========== SUPABASE (Cloudflare) ==========
@@ -105,7 +75,7 @@ class ApiClient(private val tokenManager: TokenManager) {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
         
-        // Enforce modern TLS versions
+        // Cấu hình connection specs để enforce TLS 1.2+
         builder.connectionSpecs(listOf(
             ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
                 .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
@@ -169,4 +139,5 @@ class ApiClient(private val tokenManager: TokenManager) {
     val guidanceApiService: GuidanceApiService = retrofit.create(GuidanceApiService::class.java)
     val workoutApiService: WorkoutApiService = retrofit.create(WorkoutApiService::class.java)
     val chatApiService: ChatApiService = retrofit.create(ChatApiService::class.java)
+    val adminApiService: AdminApiService = retrofit.create(AdminApiService::class.java)
 }

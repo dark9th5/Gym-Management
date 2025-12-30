@@ -43,6 +43,9 @@ data class User(
     @Column(name = "is_verified", nullable = false)
     var isVerified: Boolean = false,
 
+    @Column(name = "is_locked", nullable = false)
+    var isLocked: Boolean = false,
+
     @Column(name = "created_at")
     @CreationTimestamp
     val createdAt: LocalDateTime? = null,

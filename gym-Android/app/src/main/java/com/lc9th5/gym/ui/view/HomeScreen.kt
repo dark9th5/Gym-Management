@@ -52,7 +52,8 @@ data class NavItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToAdmin: () -> Unit
 ) {
     val context = LocalContext.current
     val tokenManager = remember { TokenManager(context) }
@@ -159,6 +160,7 @@ fun HomeScreen(
                             tokenManager.clearTokens()
                             onLogout()
                         },
+                        onNavigateToAdmin = onNavigateToAdmin,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -418,6 +420,7 @@ fun ModernProfileTab(
     roles: String,
     isVerified: Boolean,
     onLogout: () -> Unit,
+    onNavigateToAdmin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -588,6 +591,14 @@ fun ModernProfileTab(
                     subtitle = "Bảo vệ tài khoản với Google Authenticator",
                     onClick = { show2FADialog = true }
                 )
+                if (roles.contains("ADMIN")) {
+                    SettingsItem(
+                        icon = Icons.Default.Settings,
+                        title = "Admin Dashboard",
+                        subtitle = "Quản lý hệ thống",
+                        onClick = onNavigateToAdmin
+                    )
+                }
             }
         }
 
@@ -755,7 +766,8 @@ fun ProfileTab(
         email = email,
         roles = roles,
         isVerified = isVerified,
-        onLogout = {}
+        onLogout = {},
+        onNavigateToAdmin = {}
     )
 }
 

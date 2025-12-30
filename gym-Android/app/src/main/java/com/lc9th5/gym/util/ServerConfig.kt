@@ -1,28 +1,8 @@
 package com.lc9th5.gym.util
 
-/**
- * Cấu hình địa chỉ server cho ứng dụng
- * 
- * BẢO MẬT ĐƯỜNG TRUYỀN (Transport Layer Security):
- * - Production: Sử dụng HTTPS với certificate validation
- * - Development: Có thể dùng HTTP cho local IPs
- * 
- * QUAN TRỌNG: Thay đổi SERVER_IP bên dưới thành IP thực tế của máy chạy backend
- * 
- * Để tìm IP:
- * - Windows: chạy lệnh `ipconfig` trong Command Prompt/PowerShell
- * - macOS/Linux: chạy lệnh `ifconfig` hoặc `ip addr`
- * - Android Emulator: sử dụng "10.0.2.2" (trỏ đến localhost của máy host)
- */
+
 object ServerConfig {
-    /**
-     * ⚠️ THAY ĐỔI URL NÀY THEO MÔI TRƯỜNG CỦA BẠN ⚠️
-     * 
-     * Ví dụ:
-     * - Ngrok HTTPS: "https://xxx.ngrok-free.dev" (khuyến nghị cho development)
-     * - Production: "https://api.yourdomain.com"
-     * - Local HTTP (không khuyến nghị): "http://192.168.x.x:8080"
-     */
+    
     const val BASE_URL = "https://tetratomic-nonexistentially-rigoberto.ngrok-free.dev"
     
     /**

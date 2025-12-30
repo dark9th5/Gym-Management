@@ -86,12 +86,44 @@ fun AppNavigation() {
             HomeScreen(
                 onLogout = {
                     navController.navigate("login") {
-                        // Clear back stack when logging out
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                // Add conditional button in HomeScreen to navigate to Admin if role is ADMIN
+                onNavigateToAdmin = {
+                    navController.navigate("admin_dashboard")
                 }
             )
         }
+        
+        // ==================== ADMIN ROUTES ====================
+        composable("admin_dashboard") {
+            val apiClient = com.lc9th5.gym.data.remote.ApiClient.getInstance(tokenManager)
+            val repo = com.lc9th5.gym.data.repository.AdminRepository(apiClient.adminApiService)
+            val factory = com.lc9th5.gym.ui.viewmodel.AdminViewModelFactory(repo)
+            val adminViewModel: com.lc9th5.gym.ui.viewmodel.AdminViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+            
+            com.lc9th5.gym.ui.view.admin.AdminDashboardScreen(navController, adminViewModel)
+        }
+        
+        composable("admin_users") {
+            val apiClient = com.lc9th5.gym.data.remote.ApiClient.getInstance(tokenManager)
+            val repo = com.lc9th5.gym.data.repository.AdminRepository(apiClient.adminApiService)
+            val factory = com.lc9th5.gym.ui.viewmodel.AdminViewModelFactory(repo)
+            val adminViewModel: com.lc9th5.gym.ui.viewmodel.AdminViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+            
+            com.lc9th5.gym.ui.view.admin.AdminUserListScreen(navController, adminViewModel)
+        }
+        
+        composable("admin_notifications") {
+            val apiClient = com.lc9th5.gym.data.remote.ApiClient.getInstance(tokenManager)
+            val repo = com.lc9th5.gym.data.repository.AdminRepository(apiClient.adminApiService)
+            val factory = com.lc9th5.gym.ui.viewmodel.AdminViewModelFactory(repo)
+            val adminViewModel: com.lc9th5.gym.ui.viewmodel.AdminViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+            
+            com.lc9th5.gym.ui.view.admin.AdminNotificationScreen(navController, adminViewModel)
+        }
+
            composable(
                "register?verifiedEmail={verifiedEmail}",
                arguments = listOf(navArgument("verifiedEmail") {

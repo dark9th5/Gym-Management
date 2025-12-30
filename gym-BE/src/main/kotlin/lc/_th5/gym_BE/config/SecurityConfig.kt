@@ -43,7 +43,7 @@ class SecurityConfig(
             .password(user.password)
             .authorities(user.roles.map { SimpleGrantedAuthority("ROLE_${it.name}") })
             .accountExpired(false)
-            .accountLocked(false)
+            .accountLocked(user.isLocked)
             .credentialsExpired(false)
             .disabled(false)
             .build()
